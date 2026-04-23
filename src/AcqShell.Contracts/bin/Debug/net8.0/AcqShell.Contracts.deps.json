@@ -1,0 +1,23 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v8.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v8.0": {
+      "AcqShell.Contracts/1.0.0": {
+        "runtime": {
+          "AcqShell.Contracts.dll": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "AcqShell.Contracts/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}

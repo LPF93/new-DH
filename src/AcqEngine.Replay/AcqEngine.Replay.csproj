@@ -1,0 +1,28 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <UseBinaryProjectReferences Condition="'$(UseBinaryProjectReferences)' == ''">false</UseBinaryProjectReferences>
+    <CoreBinaryPath Condition="'$(CoreBinaryPath)' == ''">..\AcqEngine.Core\bin\Debug\net8.0\AcqEngine.Core.dll</CoreBinaryPath>
+    <ContractsBinaryPath Condition="'$(ContractsBinaryPath)' == ''">..\AcqShell.Contracts\bin\Debug\net8.0\AcqShell.Contracts.dll</ContractsBinaryPath>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(UseBinaryProjectReferences)' != 'true'">
+    <ProjectReference Include="..\AcqEngine.Core\AcqEngine.Core.csproj" />
+    <ProjectReference Include="..\AcqShell.Contracts\AcqShell.Contracts.csproj" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(UseBinaryProjectReferences)' == 'true'">
+    <Reference Include="AcqEngine.Core">
+      <HintPath>$(CoreBinaryPath)</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="AcqShell.Contracts">
+      <HintPath>$(ContractsBinaryPath)</HintPath>
+      <Private>true</Private>
+    </Reference>
+  </ItemGroup>
+
+</Project>

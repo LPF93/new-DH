@@ -1,0 +1,5 @@
+D:\desktop\DH\temp-build\abst-obj-1\Debug\net8.0\AcqEngine.Storage.Abstractions.csproj.AssemblyReference.cache
+D:\desktop\DH\temp-build\abst-obj-1\Debug\net8.0\AcqEngine.Storage.Abstractions.GeneratedMSBuildEditorConfig.editorconfig
+D:\desktop\DH\temp-build\abst-obj-1\Debug\net8.0\AcqEngine.Storage.Abstractions.AssemblyInfoInputs.cache
+D:\desktop\DH\temp-build\abst-obj-1\Debug\net8.0\AcqEngine.Storage.Abstractions.AssemblyInfo.cs
+D:\desktop\DH\temp-build\abst-obj-1\Debug\net8.0\AcqEngine.Storage.Abstractions.csproj.CoreCompileInputs.cache

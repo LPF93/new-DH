@@ -1,0 +1,15 @@
+D:\desktop\DH\src\AcqEngine.DeviceSdk\bin\Debug\net8.0\AcqEngine.DeviceSdk.deps.json
+D:\desktop\DH\src\AcqEngine.DeviceSdk\bin\Debug\net8.0\AcqEngine.DeviceSdk.dll
+D:\desktop\DH\src\AcqEngine.DeviceSdk\bin\Debug\net8.0\AcqEngine.DeviceSdk.pdb
+D:\desktop\DH\src\AcqEngine.DeviceSdk\bin\Debug\net8.0\AcqEngine.Core.dll
+D:\desktop\DH\src\AcqEngine.DeviceSdk\bin\Debug\net8.0\AcqEngine.Core.pdb
+D:\desktop\DH\temp-build\obj\AcqEngine.DeviceSdk\Debug\net8.0\AcqEngine.DeviceSdk.csproj.AssemblyReference.cache
+D:\desktop\DH\temp-build\obj\AcqEngine.DeviceSdk\Debug\net8.0\AcqEngine.DeviceSdk.GeneratedMSBuildEditorConfig.editorconfig
+D:\desktop\DH\temp-build\obj\AcqEngine.DeviceSdk\Debug\net8.0\AcqEngine.DeviceSdk.AssemblyInfoInputs.cache
+D:\desktop\DH\temp-build\obj\AcqEngine.DeviceSdk\Debug\net8.0\AcqEngine.DeviceSdk.AssemblyInfo.cs
+D:\desktop\DH\temp-build\obj\AcqEngine.DeviceSdk\Debug\net8.0\AcqEngine.DeviceSdk.csproj.CoreCompileInputs.cache
+D:\desktop\DH\temp-build\obj\AcqEngine.DeviceSdk\Debug\net8.0\AcqEngin.1E862404.Up2Date
+D:\desktop\DH\temp-build\obj\AcqEngine.DeviceSdk\Debug\net8.0\AcqEngine.DeviceSdk.dll
+D:\desktop\DH\temp-build\obj\AcqEngine.DeviceSdk\Debug\net8.0\refint\AcqEngine.DeviceSdk.dll
+D:\desktop\DH\temp-build\obj\AcqEngine.DeviceSdk\Debug\net8.0\AcqEngine.DeviceSdk.pdb
+D:\desktop\DH\temp-build\obj\AcqEngine.DeviceSdk\Debug\net8.0\ref\AcqEngine.DeviceSdk.dll

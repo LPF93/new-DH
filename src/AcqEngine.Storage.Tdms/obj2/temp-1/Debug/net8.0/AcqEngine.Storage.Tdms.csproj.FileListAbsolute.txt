@@ -1,0 +1,5 @@
+D:\desktop\DH\src\AcqEngine.Storage.Tdms\obj2\temp-1\Debug\net8.0\AcqEngine.Storage.Tdms.csproj.AssemblyReference.cache
+D:\desktop\DH\src\AcqEngine.Storage.Tdms\obj2\temp-1\Debug\net8.0\AcqEngine.Storage.Tdms.GeneratedMSBuildEditorConfig.editorconfig
+D:\desktop\DH\src\AcqEngine.Storage.Tdms\obj2\temp-1\Debug\net8.0\AcqEngine.Storage.Tdms.AssemblyInfoInputs.cache
+D:\desktop\DH\src\AcqEngine.Storage.Tdms\obj2\temp-1\Debug\net8.0\AcqEngine.Storage.Tdms.AssemblyInfo.cs
+D:\desktop\DH\src\AcqEngine.Storage.Tdms\obj2\temp-1\Debug\net8.0\AcqEngine.Storage.Tdms.csproj.CoreCompileInputs.cache

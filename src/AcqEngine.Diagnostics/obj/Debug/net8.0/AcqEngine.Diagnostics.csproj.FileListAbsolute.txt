@@ -1,0 +1,15 @@
+D:\desktop\DH\src\AcqEngine.Diagnostics\bin\Debug\net8.0\AcqEngine.Diagnostics.deps.json
+D:\desktop\DH\src\AcqEngine.Diagnostics\bin\Debug\net8.0\AcqEngine.Diagnostics.dll
+D:\desktop\DH\src\AcqEngine.Diagnostics\bin\Debug\net8.0\AcqEngine.Diagnostics.pdb
+D:\desktop\DH\src\AcqEngine.Diagnostics\bin\Debug\net8.0\AcqEngine.Core.dll
+D:\desktop\DH\src\AcqEngine.Diagnostics\bin\Debug\net8.0\AcqEngine.Core.pdb
+D:\desktop\DH\src\AcqEngine.Diagnostics\obj\Debug\net8.0\AcqEngine.Diagnostics.csproj.AssemblyReference.cache
+D:\desktop\DH\src\AcqEngine.Diagnostics\obj\Debug\net8.0\AcqEngine.Diagnostics.GeneratedMSBuildEditorConfig.editorconfig
+D:\desktop\DH\src\AcqEngine.Diagnostics\obj\Debug\net8.0\AcqEngine.Diagnostics.AssemblyInfoInputs.cache
+D:\desktop\DH\src\AcqEngine.Diagnostics\obj\Debug\net8.0\AcqEngine.Diagnostics.AssemblyInfo.cs
+D:\desktop\DH\src\AcqEngine.Diagnostics\obj\Debug\net8.0\AcqEngine.Diagnostics.csproj.CoreCompileInputs.cache
+D:\desktop\DH\src\AcqEngine.Diagnostics\obj\Debug\net8.0\AcqEngin.98A1B38F.Up2Date
+D:\desktop\DH\src\AcqEngine.Diagnostics\obj\Debug\net8.0\AcqEngine.Diagnostics.dll
+D:\desktop\DH\src\AcqEngine.Diagnostics\obj\Debug\net8.0\refint\AcqEngine.Diagnostics.dll
+D:\desktop\DH\src\AcqEngine.Diagnostics\obj\Debug\net8.0\AcqEngine.Diagnostics.pdb
+D:\desktop\DH\src\AcqEngine.Diagnostics\obj\Debug\net8.0\ref\AcqEngine.Diagnostics.dll

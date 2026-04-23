@@ -1,0 +1,17 @@
+D:\desktop\DH\temp-build\obj-storage-tdms\AcqEngine.Storage.Tdms\Debug\net8.0\AcqEngine.Storage.Tdms.csproj.AssemblyReference.cache
+D:\desktop\DH\temp-build\obj-storage-tdms\AcqEngine.Storage.Tdms\Debug\net8.0\AcqEngine.Storage.Tdms.GeneratedMSBuildEditorConfig.editorconfig
+D:\desktop\DH\temp-build\obj-storage-tdms\AcqEngine.Storage.Tdms\Debug\net8.0\AcqEngine.Storage.Tdms.AssemblyInfoInputs.cache
+D:\desktop\DH\temp-build\obj-storage-tdms\AcqEngine.Storage.Tdms\Debug\net8.0\AcqEngine.Storage.Tdms.AssemblyInfo.cs
+D:\desktop\DH\temp-build\obj-storage-tdms\AcqEngine.Storage.Tdms\Debug\net8.0\AcqEngine.Storage.Tdms.csproj.CoreCompileInputs.cache
+D:\desktop\DH\src\AcqEngine.Storage.Tdms\bin\Debug\net8.0\AcqEngine.Storage.Tdms.deps.json
+D:\desktop\DH\src\AcqEngine.Storage.Tdms\bin\Debug\net8.0\AcqEngine.Storage.Tdms.dll
+D:\desktop\DH\src\AcqEngine.Storage.Tdms\bin\Debug\net8.0\AcqEngine.Storage.Tdms.pdb
+D:\desktop\DH\src\AcqEngine.Storage.Tdms\bin\Debug\net8.0\AcqEngine.Core.dll
+D:\desktop\DH\src\AcqEngine.Storage.Tdms\bin\Debug\net8.0\AcqEngine.Storage.Abstractions.dll
+D:\desktop\DH\src\AcqEngine.Storage.Tdms\bin\Debug\net8.0\AcqEngine.Storage.Abstractions.pdb
+D:\desktop\DH\src\AcqEngine.Storage.Tdms\bin\Debug\net8.0\AcqEngine.Core.pdb
+D:\desktop\DH\temp-build\obj-storage-tdms\AcqEngine.Storage.Tdms\Debug\net8.0\AcqEngin.EE58E00F.Up2Date
+D:\desktop\DH\temp-build\obj-storage-tdms\AcqEngine.Storage.Tdms\Debug\net8.0\AcqEngine.Storage.Tdms.dll
+D:\desktop\DH\temp-build\obj-storage-tdms\AcqEngine.Storage.Tdms\Debug\net8.0\refint\AcqEngine.Storage.Tdms.dll
+D:\desktop\DH\temp-build\obj-storage-tdms\AcqEngine.Storage.Tdms\Debug\net8.0\AcqEngine.Storage.Tdms.pdb
+D:\desktop\DH\temp-build\obj-storage-tdms\AcqEngine.Storage.Tdms\Debug\net8.0\ref\AcqEngine.Storage.Tdms.dll

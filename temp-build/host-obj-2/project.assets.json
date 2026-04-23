@@ -1,0 +1,255 @@
+{
+  "version": 3,
+  "targets": {
+    "net8.0": {
+      "AcqEngine.Core/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v8.0",
+        "compile": {
+          "bin/placeholder/AcqEngine.Core.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/AcqEngine.Core.dll": {}
+        }
+      },
+      "AcqEngine.DeviceSdk/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v8.0",
+        "dependencies": {
+          "AcqEngine.Core": "1.0.0"
+        },
+        "compile": {
+          "bin/placeholder/AcqEngine.DeviceSdk.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/AcqEngine.DeviceSdk.dll": {}
+        }
+      },
+      "AcqEngine.Diagnostics/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v8.0",
+        "dependencies": {
+          "AcqEngine.Core": "1.0.0"
+        },
+        "compile": {
+          "bin/placeholder/AcqEngine.Diagnostics.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/AcqEngine.Diagnostics.dll": {}
+        }
+      },
+      "AcqEngine.Processing/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v8.0",
+        "dependencies": {
+          "AcqEngine.Core": "1.0.0"
+        },
+        "compile": {
+          "bin/placeholder/AcqEngine.Processing.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/AcqEngine.Processing.dll": {}
+        }
+      },
+      "AcqEngine.Storage.Abstractions/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v8.0",
+        "dependencies": {
+          "AcqEngine.Core": "1.0.0"
+        },
+        "compile": {
+          "bin/placeholder/AcqEngine.Storage.Abstractions.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/AcqEngine.Storage.Abstractions.dll": {}
+        }
+      },
+      "AcqEngine.Storage.Hdf5/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v8.0",
+        "dependencies": {
+          "AcqEngine.Core": "1.0.0",
+          "AcqEngine.Storage.Abstractions": "1.0.0"
+        },
+        "compile": {
+          "bin/placeholder/AcqEngine.Storage.Hdf5.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/AcqEngine.Storage.Hdf5.dll": {}
+        }
+      },
+      "AcqEngine.Storage.Tdms/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v8.0",
+        "dependencies": {
+          "AcqEngine.Core": "1.0.0",
+          "AcqEngine.Storage.Abstractions": "1.0.0"
+        },
+        "compile": {
+          "bin/placeholder/AcqEngine.Storage.Tdms.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/AcqEngine.Storage.Tdms.dll": {}
+        }
+      },
+      "AcqShell.Contracts/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v8.0",
+        "compile": {
+          "bin/placeholder/AcqShell.Contracts.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/AcqShell.Contracts.dll": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "AcqEngine.Core/1.0.0": {
+      "type": "project",
+      "path": "../AcqEngine.Core/AcqEngine.Core.csproj",
+      "msbuildProject": "../AcqEngine.Core/AcqEngine.Core.csproj"
+    },
+    "AcqEngine.DeviceSdk/1.0.0": {
+      "type": "project",
+      "path": "../AcqEngine.DeviceSdk/AcqEngine.DeviceSdk.csproj",
+      "msbuildProject": "../AcqEngine.DeviceSdk/AcqEngine.DeviceSdk.csproj"
+    },
+    "AcqEngine.Diagnostics/1.0.0": {
+      "type": "project",
+      "path": "../AcqEngine.Diagnostics/AcqEngine.Diagnostics.csproj",
+      "msbuildProject": "../AcqEngine.Diagnostics/AcqEngine.Diagnostics.csproj"
+    },
+    "AcqEngine.Processing/1.0.0": {
+      "type": "project",
+      "path": "../AcqEngine.Processing/AcqEngine.Processing.csproj",
+      "msbuildProject": "../AcqEngine.Processing/AcqEngine.Processing.csproj"
+    },
+    "AcqEngine.Storage.Abstractions/1.0.0": {
+      "type": "project",
+      "path": "../AcqEngine.Storage.Abstractions/AcqEngine.Storage.Abstractions.csproj",
+      "msbuildProject": "../AcqEngine.Storage.Abstractions/AcqEngine.Storage.Abstractions.csproj"
+    },
+    "AcqEngine.Storage.Hdf5/1.0.0": {
+      "type": "project",
+      "path": "../AcqEngine.Storage.Hdf5/AcqEngine.Storage.Hdf5.csproj",
+      "msbuildProject": "../AcqEngine.Storage.Hdf5/AcqEngine.Storage.Hdf5.csproj"
+    },
+    "AcqEngine.Storage.Tdms/1.0.0": {
+      "type": "project",
+      "path": "../AcqEngine.Storage.Tdms/AcqEngine.Storage.Tdms.csproj",
+      "msbuildProject": "../AcqEngine.Storage.Tdms/AcqEngine.Storage.Tdms.csproj"
+    },
+    "AcqShell.Contracts/1.0.0": {
+      "type": "project",
+      "path": "../AcqShell.Contracts/AcqShell.Contracts.csproj",
+      "msbuildProject": "../AcqShell.Contracts/AcqShell.Contracts.csproj"
+    }
+  },
+  "projectFileDependencyGroups": {
+    "net8.0": [
+      "AcqEngine.Core >= 1.0.0",
+      "AcqEngine.DeviceSdk >= 1.0.0",
+      "AcqEngine.Diagnostics >= 1.0.0",
+      "AcqEngine.Processing >= 1.0.0",
+      "AcqEngine.Storage.Abstractions >= 1.0.0",
+      "AcqEngine.Storage.Hdf5 >= 1.0.0",
+      "AcqEngine.Storage.Tdms >= 1.0.0",
+      "AcqShell.Contracts >= 1.0.0"
+    ]
+  },
+  "packageFolders": {
+    "C:\\Users\\27249\\.nuget\\packages\\": {},
+    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
+  },
+  "project": {
+    "version": "1.0.0",
+    "restore": {
+      "projectUniqueName": "D:\\desktop\\DH\\src\\AcqEngine.Host\\AcqEngine.Host.csproj",
+      "projectName": "AcqEngine.Host",
+      "projectPath": "D:\\desktop\\DH\\src\\AcqEngine.Host\\AcqEngine.Host.csproj",
+      "packagesPath": "C:\\Users\\27249\\.nuget\\packages\\",
+      "outputPath": "D:\\desktop\\DH\\src\\AcqEngine.Host\\obj\\",
+      "projectStyle": "PackageReference",
+      "fallbackFolders": [
+        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+      ],
+      "configFilePaths": [
+        "C:\\Users\\27249\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+      ],
+      "originalTargetFrameworks": [
+        "net8.0"
+      ],
+      "sources": {
+        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+        "https://api.nuget.org/v3/index.json": {}
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
+          "projectReferences": {
+            "D:\\desktop\\DH\\src\\AcqEngine.Core\\AcqEngine.Core.csproj": {
+              "projectPath": "D:\\desktop\\DH\\src\\AcqEngine.Core\\AcqEngine.Core.csproj"
+            },
+            "D:\\desktop\\DH\\src\\AcqEngine.DeviceSdk\\AcqEngine.DeviceSdk.csproj": {
+              "projectPath": "D:\\desktop\\DH\\src\\AcqEngine.DeviceSdk\\AcqEngine.DeviceSdk.csproj"
+            },
+            "D:\\desktop\\DH\\src\\AcqEngine.Diagnostics\\AcqEngine.Diagnostics.csproj": {
+              "projectPath": "D:\\desktop\\DH\\src\\AcqEngine.Diagnostics\\AcqEngine.Diagnostics.csproj"
+            },
+            "D:\\desktop\\DH\\src\\AcqEngine.Processing\\AcqEngine.Processing.csproj": {
+              "projectPath": "D:\\desktop\\DH\\src\\AcqEngine.Processing\\AcqEngine.Processing.csproj"
+            },
+            "D:\\desktop\\DH\\src\\AcqEngine.Storage.Abstractions\\AcqEngine.Storage.Abstractions.csproj": {
+              "projectPath": "D:\\desktop\\DH\\src\\AcqEngine.Storage.Abstractions\\AcqEngine.Storage.Abstractions.csproj"
+            },
+            "D:\\desktop\\DH\\src\\AcqEngine.Storage.Hdf5\\AcqEngine.Storage.Hdf5.csproj": {
+              "projectPath": "D:\\desktop\\DH\\src\\AcqEngine.Storage.Hdf5\\AcqEngine.Storage.Hdf5.csproj"
+            },
+            "D:\\desktop\\DH\\src\\AcqEngine.Storage.Tdms\\AcqEngine.Storage.Tdms.csproj": {
+              "projectPath": "D:\\desktop\\DH\\src\\AcqEngine.Storage.Tdms\\AcqEngine.Storage.Tdms.csproj"
+            },
+            "D:\\desktop\\DH\\src\\AcqShell.Contracts\\AcqShell.Contracts.csproj": {
+              "projectPath": "D:\\desktop\\DH\\src\\AcqShell.Contracts\\AcqShell.Contracts.csproj"
+            }
+          }
+        }
+      },
+      "warningProperties": {
+        "warnAsError": [
+          "NU1605"
+        ]
+      },
+      "restoreAuditProperties": {
+        "enableAudit": "true",
+        "auditLevel": "low",
+        "auditMode": "direct"
+      },
+      "SdkAnalysisLevel": "9.0.300"
+    },
+    "frameworks": {
+      "net8.0": {
+        "targetAlias": "net8.0",
+        "imports": [
+          "net461",
+          "net462",
+          "net47",
+          "net471",
+          "net472",
+          "net48",
+          "net481"
+        ],
+        "assetTargetFallback": true,
+        "warn": true,
+        "frameworkReferences": {
+          "Microsoft.NETCore.App": {
+            "privateAssets": "all"
+          }
+        },
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.304/PortableRuntimeIdentifierGraph.json"
+      }
+    }
+  }
+}

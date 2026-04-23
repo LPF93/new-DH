@@ -1,0 +1,11 @@
+D:\desktop\DH\temp-build\obj\AcqShell.Contracts\Debug\net8.0\AcqShell.Contracts.GeneratedMSBuildEditorConfig.editorconfig
+D:\desktop\DH\temp-build\obj\AcqShell.Contracts\Debug\net8.0\AcqShell.Contracts.AssemblyInfoInputs.cache
+D:\desktop\DH\temp-build\obj\AcqShell.Contracts\Debug\net8.0\AcqShell.Contracts.AssemblyInfo.cs
+D:\desktop\DH\temp-build\obj\AcqShell.Contracts\Debug\net8.0\AcqShell.Contracts.csproj.CoreCompileInputs.cache
+D:\desktop\DH\src\AcqShell.Contracts\bin\Debug\net8.0\AcqShell.Contracts.deps.json
+D:\desktop\DH\src\AcqShell.Contracts\bin\Debug\net8.0\AcqShell.Contracts.dll
+D:\desktop\DH\src\AcqShell.Contracts\bin\Debug\net8.0\AcqShell.Contracts.pdb
+D:\desktop\DH\temp-build\obj\AcqShell.Contracts\Debug\net8.0\AcqShell.Contracts.dll
+D:\desktop\DH\temp-build\obj\AcqShell.Contracts\Debug\net8.0\refint\AcqShell.Contracts.dll
+D:\desktop\DH\temp-build\obj\AcqShell.Contracts\Debug\net8.0\AcqShell.Contracts.pdb
+D:\desktop\DH\temp-build\obj\AcqShell.Contracts\Debug\net8.0\ref\AcqShell.Contracts.dll

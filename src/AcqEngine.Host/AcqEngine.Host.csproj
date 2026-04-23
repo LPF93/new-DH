@@ -1,0 +1,63 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <UseBinaryProjectReferences Condition="'$(UseBinaryProjectReferences)' == ''">false</UseBinaryProjectReferences>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(UseBinaryProjectReferences)' != 'true'">
+    <ProjectReference Include="..\AcqEngine.Core\AcqEngine.Core.csproj" />
+    <ProjectReference Include="..\AcqEngine.DeviceSdk\AcqEngine.DeviceSdk.csproj" />
+    <ProjectReference Include="..\AcqEngine.Processing\AcqEngine.Processing.csproj" />
+    <ProjectReference Include="..\AcqEngine.Diagnostics\AcqEngine.Diagnostics.csproj" />
+    <ProjectReference Include="..\AcqEngine.Storage.Abstractions\AcqEngine.Storage.Abstractions.csproj" />
+    <ProjectReference Include="..\AcqEngine.Storage.Tdms\AcqEngine.Storage.Tdms.csproj" />
+    <ProjectReference Include="..\AcqEngine.Storage.Hdf5\AcqEngine.Storage.Hdf5.csproj" />
+    <ProjectReference Include="..\AcqShell.Contracts\AcqShell.Contracts.csproj" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(UseBinaryProjectReferences)' == 'true'">
+    <Reference Include="AcqEngine.Core">
+      <HintPath>..\AcqEngine.Core\bin\Debug\net8.0\AcqEngine.Core.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="AcqEngine.DeviceSdk">
+      <HintPath>..\AcqEngine.DeviceSdk\bin\Debug\net8.0\AcqEngine.DeviceSdk.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="AcqEngine.Processing">
+      <HintPath>..\AcqEngine.Processing\bin\Debug\net8.0\AcqEngine.Processing.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="AcqEngine.Diagnostics">
+      <HintPath>..\AcqEngine.Diagnostics\bin\Debug\net8.0\AcqEngine.Diagnostics.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="AcqEngine.Storage.Abstractions">
+      <HintPath>..\AcqEngine.Storage.Abstractions\bin\Debug\net8.0\AcqEngine.Storage.Abstractions.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="AcqEngine.Storage.Tdms">
+      <HintPath>..\AcqEngine.Storage.Tdms\bin\Debug\net8.0\AcqEngine.Storage.Tdms.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="AcqEngine.Storage.Hdf5">
+      <HintPath>..\AcqEngine.Storage.Hdf5\bin\Debug\net8.0\AcqEngine.Storage.Hdf5.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="AcqShell.Contracts">
+      <HintPath>..\AcqShell.Contracts\bin\Debug\net8.0\AcqShell.Contracts.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="appsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>

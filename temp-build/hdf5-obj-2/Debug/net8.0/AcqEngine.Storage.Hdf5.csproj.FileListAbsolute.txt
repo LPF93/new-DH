@@ -1,0 +1,3 @@
+D:\desktop\DH\temp-build\hdf5-obj-2\Debug\net8.0\AcqEngine.Storage.Hdf5.csproj.AssemblyReference.cache
+D:\desktop\DH\temp-build\hdf5-obj-2\Debug\net8.0\AcqEngine.Storage.Hdf5.GeneratedMSBuildEditorConfig.editorconfig
+D:\desktop\DH\temp-build\hdf5-obj-2\Debug\net8.0\AcqEngine.Storage.Hdf5.csproj.CoreCompileInputs.cache

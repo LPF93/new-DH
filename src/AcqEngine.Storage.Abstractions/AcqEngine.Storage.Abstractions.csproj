@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <UseBinaryProjectReferences Condition="'$(UseBinaryProjectReferences)' == ''">false</UseBinaryProjectReferences>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(UseBinaryProjectReferences)' != 'true'">
+    <ProjectReference Include="..\AcqEngine.Core\AcqEngine.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(UseBinaryProjectReferences)' == 'true'">
+    <Reference Include="AcqEngine.Core">
+      <HintPath>..\AcqEngine.Core\bin\Debug\net8.0\AcqEngine.Core.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+  </ItemGroup>
+
+</Project>

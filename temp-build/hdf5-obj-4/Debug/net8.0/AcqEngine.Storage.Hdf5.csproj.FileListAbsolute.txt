@@ -1,0 +1,11 @@
+D:\desktop\DH\temp-build\hdf5-bin-4\Debug\net8.0\AcqEngine.Storage.Hdf5.deps.json
+D:\desktop\DH\temp-build\hdf5-bin-4\Debug\net8.0\AcqEngine.Storage.Hdf5.dll
+D:\desktop\DH\temp-build\hdf5-bin-4\Debug\net8.0\AcqEngine.Storage.Hdf5.pdb
+D:\desktop\DH\temp-build\hdf5-obj-4\Debug\net8.0\AcqEngine.Storage.Hdf5.csproj.AssemblyReference.cache
+D:\desktop\DH\temp-build\hdf5-obj-4\Debug\net8.0\AcqEngine.Storage.Hdf5.GeneratedMSBuildEditorConfig.editorconfig
+D:\desktop\DH\temp-build\hdf5-obj-4\Debug\net8.0\AcqEngine.Storage.Hdf5.csproj.CoreCompileInputs.cache
+D:\desktop\DH\temp-build\hdf5-obj-4\Debug\net8.0\AcqEngin.1AEF3A76.Up2Date
+D:\desktop\DH\temp-build\hdf5-obj-4\Debug\net8.0\AcqEngine.Storage.Hdf5.dll
+D:\desktop\DH\temp-build\hdf5-obj-4\Debug\net8.0\refint\AcqEngine.Storage.Hdf5.dll
+D:\desktop\DH\temp-build\hdf5-obj-4\Debug\net8.0\AcqEngine.Storage.Hdf5.pdb
+D:\desktop\DH\temp-build\hdf5-obj-4\Debug\net8.0\ref\AcqEngine.Storage.Hdf5.dll

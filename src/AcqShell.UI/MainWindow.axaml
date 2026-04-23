@@ -1,0 +1,853 @@
+﻿<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="AcqShell.UI.MainWindow"
+        Title="数据采集系统"
+        Width="1380"
+        Height="900"
+        MinWidth="1200"
+        MinHeight="760"
+        Background="#F3F7FB">
+  <Grid RowDefinitions="Auto,*">
+    <Border Background="#FFFFFF"
+            Padding="24,18"
+            BorderThickness="0,0,0,1"
+            BorderBrush="#D7E2F0">
+      <Grid ColumnDefinitions="*,Auto">
+        <StackPanel Spacing="4">
+          <TextBlock Text="数据采集控制台"
+                     FontSize="28"
+                     FontWeight="Bold"
+                     Foreground="#0F172A"/>
+          <TextBlock Text="配置 SDK、管理通道并实时查看波形结果"
+                     FontSize="13"
+                     Foreground="#526581"/>
+        </StackPanel>
+        <StackPanel Grid.Column="1"
+                    Orientation="Horizontal"
+                    Spacing="12"
+                    VerticalAlignment="Center">
+          <Border Background="#0F766E"
+                  CornerRadius="999"
+                  Padding="12,6">
+            <TextBlock x:Name="StateBadgeText"
+                       Text="待机"
+                       Foreground="White"
+                       FontWeight="SemiBold"/>
+          </Border>
+          <TextBlock x:Name="SdkStatusText"
+                     Text="尚未初始化"
+                     VerticalAlignment="Center"
+                     Foreground="#1F2937"/>
+        </StackPanel>
+      </Grid>
+    </Border>
+
+    <TabControl Grid.Row="1" Margin="18">
+      <TabItem Header="通道管理">
+        <Grid RowDefinitions="Auto,*,Auto"
+              Margin="6"
+              ColumnDefinitions="340,*">
+          <Border Grid.Row="0"
+                  Grid.RowSpan="3"
+                  Grid.Column="0"
+                  Margin="0,0,16,0"
+                  Background="#F8FBFF"
+                  BorderBrush="#D7E2F0"
+                  BorderThickness="1"
+                  CornerRadius="16"
+                  Padding="18">
+            <Grid RowDefinitions="Auto,Auto,Auto,*">
+              <StackPanel Spacing="12">
+                <TextBlock Text="数据源配置"
+                           FontWeight="SemiBold"
+                           FontSize="18"
+                           Foreground="#0F172A"/>
+
+                <StackPanel Orientation="Horizontal" Spacing="18">
+                  <RadioButton x:Name="NativeModeRadio"
+                               Content="设备 SDK 模式"
+                               IsChecked="True"
+                               Checked="OnDataSourceModeChanged"
+                               Foreground="#1F2937" />
+                  <RadioButton x:Name="MockModeRadio"
+                               Content="模拟模式"
+                               Checked="OnDataSourceModeChanged"
+                               Foreground="#1F2937" />
+                </StackPanel>
+
+                <StackPanel x:Name="NativeConfigPanel" Spacing="8">
+                  <TextBlock Text="配置目录"
+                             FontWeight="SemiBold"
+                             Foreground="#1F2937" />
+                  <Grid ColumnDefinitions="*,Auto">
+                    <TextBox x:Name="ConfigDirectoryTextBox"
+                             Background="#FFFFFF"
+                             Foreground="#0F172A"
+                             BorderBrush="#64748B"
+                             Watermark="例如: D:\DHDAS\config" />
+                    <Button Grid.Column="1"
+                            Margin="8,0,0,0"
+                            Content="浏览"
+                            Click="OnBrowseConfigDirectoryClick"
+                            Background="#1D4ED8"
+                            Foreground="White"
+                            Padding="16,8" />
+                  </Grid>
+                  <TextBlock Text="只保留一个配置目录即可，SDK 目录会根据配置目录自动推断。"
+                             TextWrapping="Wrap"
+                             FontSize="12"
+                             Foreground="#526581" />
+                </StackPanel>
+
+                <StackPanel x:Name="MockConfigPanel" IsVisible="False" Spacing="8">
+                  <TextBlock Text="模拟拓扑"
+                             FontWeight="SemiBold"
+                             Foreground="#1F2937" />
+                  <Grid RowDefinitions="Auto,Auto"
+                        ColumnDefinitions="Auto,*">
+                    <TextBlock Text="设备数"
+                               VerticalAlignment="Center"
+                               Foreground="#475569" />
+                    <TextBox x:Name="MockDeviceCountTextBox"
+                             Grid.Column="1"
+                             Margin="8,0,0,0"
+                             Text="1"
+                             Background="#FFFFFF"
+                             Foreground="#0F172A"
+                             BorderBrush="#64748B" />
+                    <TextBlock Grid.Row="1"
+                               Text="每台通道数"
+                               VerticalAlignment="Center"
+                               Foreground="#475569" />
+                    <TextBox x:Name="MockChannelCountTextBox"
+                             Grid.Row="1"
+                             Grid.Column="1"
+                             Margin="8,8,0,0"
+                             Text="16"
+                             Background="#FFFFFF"
+                             Foreground="#0F172A"
+                             BorderBrush="#64748B" />
+                  </Grid>
+                </StackPanel>
+              </StackPanel>
+
+              <Border Grid.Row="1"
+                      Margin="0,16,0,0"
+                      Background="#FFFFFF"
+                      BorderBrush="#D7E2F0"
+                      BorderThickness="1"
+                      CornerRadius="12"
+                      Padding="12">
+                <TextBlock x:Name="TopologyStatusText"
+                           Text="选择配置目录后点击“初始化 SDK”。"
+                           TextWrapping="Wrap"
+                           Foreground="#475569" />
+              </Border>
+
+              <TextBlock Grid.Row="2"
+                         Margin="0,16,0,0"
+                         Text="设备列表"
+                         FontSize="16"
+                         FontWeight="SemiBold"
+                         Foreground="#0F172A" />
+
+              <ScrollViewer Grid.Row="3"
+                            Margin="0,16,0,0"
+                            VerticalScrollBarVisibility="Auto">
+                <ItemsControl x:Name="DeviceListItemsControl">
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                      <Button Click="OnDeviceCardClick"
+                              Tag="{Binding MachineId}"
+                              Background="{Binding CardBackground}"
+                              BorderBrush="{Binding CardBorderBrush}"
+                              BorderThickness="1"
+                              Padding="12"
+                              Margin="0,0,0,10"
+                              HorizontalContentAlignment="Stretch">
+                        <StackPanel Spacing="8">
+                          <Grid ColumnDefinitions="*,Auto">
+                            <TextBlock Text="{Binding DisplayName}"
+                                       FontSize="15"
+                                       FontWeight="SemiBold"
+                                       Foreground="#0F172A" />
+                            <Border Grid.Column="1"
+                                    Background="{Binding StateBadgeBackground}"
+                                    CornerRadius="999"
+                                    Padding="8,3">
+                              <TextBlock Text="{Binding StateText}"
+                                         FontSize="11"
+                                         FontWeight="SemiBold"
+                                         Foreground="White" />
+                            </Border>
+                          </Grid>
+                          <TextBlock Text="{Binding Subtitle}"
+                                     FontSize="12"
+                                     Foreground="#526581"
+                                     TextWrapping="Wrap" />
+                          <TextBlock Text="{Binding SelectionText}"
+                                     FontSize="12"
+                                     FontWeight="SemiBold"
+                                     Foreground="#2563EB" />
+                        </StackPanel>
+                      </Button>
+                    </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
+              </ScrollViewer>
+            </Grid>
+          </Border>
+
+          <UniformGrid Grid.Row="0"
+                       Grid.Column="1"
+                       Margin="0,0,0,16"
+                       Rows="1"
+                       Columns="4">
+            <Border Margin="0,0,12,0"
+                    Padding="16"
+                    CornerRadius="14"
+                    Background="#F8FBFF"
+                    BorderBrush="#D7E2F0"
+                    BorderThickness="1">
+              <StackPanel Spacing="6">
+                <TextBlock Text="设备数" Foreground="#526581" />
+                <TextBlock x:Name="DeviceCountText"
+                           Text="0"
+                           FontSize="28"
+                           FontWeight="Bold"
+                           Foreground="#0F172A" />
+              </StackPanel>
+            </Border>
+
+            <Border Margin="0,0,12,0"
+                    Padding="16"
+                    CornerRadius="14"
+                    Background="#F8FBFF"
+                    BorderBrush="#D7E2F0"
+                    BorderThickness="1">
+              <StackPanel Spacing="6">
+                <TextBlock Text="总通道数" Foreground="#526581" />
+                <TextBlock x:Name="TotalChannelCountText"
+                           Text="0"
+                           FontSize="28"
+                           FontWeight="Bold"
+                           Foreground="#0F172A" />
+              </StackPanel>
+            </Border>
+
+            <Border Margin="0,0,12,0"
+                    Padding="16"
+                    CornerRadius="14"
+                    Background="#F8FBFF"
+                    BorderBrush="#D7E2F0"
+                    BorderThickness="1">
+              <StackPanel Spacing="6">
+                <TextBlock Text="已选通道" Foreground="#526581" />
+                <TextBlock x:Name="EnabledChannelCountText"
+                           Text="0"
+                           FontSize="28"
+                           FontWeight="Bold"
+                           Foreground="#0F172A" />
+              </StackPanel>
+            </Border>
+
+            <Border Padding="16"
+                    CornerRadius="14"
+                    Background="#F8FBFF"
+                    BorderBrush="#D7E2F0"
+                    BorderThickness="1">
+              <StackPanel Spacing="6">
+                <TextBlock Text="在线通道" Foreground="#526581" />
+                <TextBlock x:Name="OnlineChannelCountText"
+                           Text="0"
+                           FontSize="28"
+                           FontWeight="Bold"
+                           Foreground="#0F172A" />
+              </StackPanel>
+            </Border>
+          </UniformGrid>
+
+          <Border Grid.Row="1"
+                  Grid.Column="1"
+                  Margin="0,0,0,16"
+                  Background="#F8FBFF"
+                  BorderBrush="#D7E2F0"
+                  BorderThickness="1"
+                  CornerRadius="16"
+                  Padding="18">
+            <Grid RowDefinitions="Auto,*">
+              <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Spacing="4">
+                  <TextBlock x:Name="SelectedDeviceText"
+                             Text="当前设备：未选择"
+                             FontWeight="SemiBold"
+                             FontSize="18"
+                             Foreground="#0F172A"/>
+                  <TextBlock x:Name="SelectedChannelsSummaryText"
+                             Text="已选 0 / 0"
+                             Foreground="#2563EB"/>
+                </StackPanel>
+                <StackPanel Grid.Column="1"
+                            Margin="12,0,0,0"
+                            Orientation="Horizontal"
+                            Spacing="8"
+                            VerticalAlignment="Center">
+                  <Button Content="全选"
+                          Click="OnSelectAllChannelsClick"
+                          Background="#1D4ED8"
+                          Foreground="White" />
+                  <Button Content="清空"
+                          Click="OnClearAllChannelsClick"
+                          Background="#64748B"
+                          Foreground="White" />
+                  <Button Content="反选"
+                          Click="OnInvertChannelsClick"
+                          Background="#0F766E"
+                          Foreground="White" />
+                </StackPanel>
+              </Grid>
+
+              <ScrollViewer Grid.Row="1"
+                            Margin="0,16,0,0"
+                            VerticalScrollBarVisibility="Auto">
+                <ListBox x:Name="ChannelListBox"
+                         Background="Transparent"
+                         BorderThickness="0">
+                  <ListBox.ItemTemplate>
+                    <DataTemplate>
+                      <Border Background="#FFFFFF"
+                              BorderBrush="{Binding CardBorderBrush}"
+                              BorderThickness="1"
+                              CornerRadius="12"
+                              Padding="12"
+                              Margin="0,0,0,10">
+                        <Grid ColumnDefinitions="Auto,*,Auto"
+                              RowDefinitions="Auto,Auto">
+                          <CheckBox IsChecked="{Binding IsEnabled, Mode=TwoWay}"
+                                    Checked="OnChannelEnabledChanged"
+                                    Unchecked="OnChannelEnabledChanged"
+                                    VerticalAlignment="Center" />
+                          <StackPanel Grid.Column="1"
+                                      Margin="12,0,0,0"
+                                      Spacing="4">
+                            <TextBlock Text="{Binding DisplayCode}"
+                                       FontSize="15"
+                                       FontWeight="SemiBold"
+                                       Foreground="#0F172A" />
+                            <TextBlock Text="{Binding DescriptionText}"
+                                       FontSize="12"
+                                       Foreground="#526581"
+                                       TextWrapping="Wrap" />
+                          </StackPanel>
+                          <StackPanel Grid.Column="2"
+                                      Margin="12,0,0,0"
+                                      Spacing="6"
+                                      HorizontalAlignment="Right">
+                            <Border Background="{Binding StatusBadgeBackground}"
+                                    CornerRadius="999"
+                                    Padding="8,3"
+                                    HorizontalAlignment="Right">
+                              <TextBlock Text="{Binding OnlineText}"
+                                         FontSize="11"
+                                         FontWeight="SemiBold"
+                                         Foreground="White" />
+                            </Border>
+                            <TextBlock Text="{Binding LastValueText}"
+                                       FontSize="12"
+                                       Foreground="#1F2937"
+                                       HorizontalAlignment="Right" />
+                          </StackPanel>
+                          <TextBlock Grid.Row="1"
+                                     Grid.Column="1"
+                                     Grid.ColumnSpan="2"
+                                     Margin="0,6,0,0"
+                                     Text="{Binding LastSeenText}"
+                                     FontSize="11"
+                                     Foreground="#64748B" />
+                        </Grid>
+                      </Border>
+                    </DataTemplate>
+                  </ListBox.ItemTemplate>
+                </ListBox>
+              </ScrollViewer>
+            </Grid>
+          </Border>
+
+          <Border Grid.Row="2"
+                  Grid.Column="1"
+                  Background="#F8FBFF"
+                  BorderBrush="#D7E2F0"
+                  BorderThickness="1"
+                  CornerRadius="16"
+                  Padding="18">
+            <Grid RowDefinitions="Auto,*">
+              <Grid ColumnDefinitions="*,Auto,Auto,Auto">
+                <StackPanel Orientation="Horizontal"
+                            Spacing="18"
+                            VerticalAlignment="Center">
+                  <StackPanel Spacing="4">
+                    <TextBlock Text="回调块数" FontSize="12" Foreground="#526581" />
+                    <TextBlock x:Name="CallbackBlocksText"
+                               Text="0"
+                               FontWeight="SemiBold"
+                               Foreground="#0F172A" />
+                  </StackPanel>
+                  <StackPanel Spacing="4">
+                    <TextBlock Text="累计字节" FontSize="12" Foreground="#526581" />
+                    <TextBlock x:Name="CallbackBytesText"
+                               Text="0 字节"
+                               FontWeight="SemiBold"
+                               Foreground="#0F172A" />
+                  </StackPanel>
+                  <StackPanel Spacing="4">
+                    <TextBlock Text="最后回调" FontSize="12" Foreground="#526581" />
+                    <TextBlock x:Name="LastCallbackText"
+                               Text="--"
+                               FontWeight="SemiBold"
+                               Foreground="#0F172A" />
+                  </StackPanel>
+                </StackPanel>
+                <Button x:Name="InitializeSdkButton"
+                        Grid.Column="1"
+                        Margin="12,0,0,0"
+                        Content="初始化 SDK"
+                        Click="OnInitializeSdkClick"
+                        Background="#2563EB"
+                        Foreground="White"
+                        Padding="18,10" />
+                <Button x:Name="StartValidationBtn"
+                        Grid.Column="2"
+                        Margin="12,0,0,0"
+                        Content="启动采样"
+                        Click="OnStartSdkValidationClick"
+                        Background="#0F766E"
+                        Foreground="White"
+                        Padding="18,10" />
+                <Button x:Name="StopValidationBtn"
+                        Grid.Column="3"
+                        Margin="12,0,0,0"
+                        Content="停止"
+                        Click="OnStopSdkValidationClick"
+                        Background="#B91C1C"
+                        Foreground="White"
+                        Padding="18,10" />
+              </Grid>
+              <TextBox x:Name="LogBox"
+                       Grid.Row="1"
+                       Margin="0,14,0,0"
+                       IsReadOnly="True"
+                       TextWrapping="Wrap"
+                       AcceptsReturn="True"
+                       VerticalContentAlignment="Top"
+                       ScrollViewer.VerticalScrollBarVisibility="Auto"
+                       Background="#FFFFFF"
+                       Foreground="#1F2937"
+                       BorderBrush="#64748B"
+                       FontFamily="Consolas" />
+            </Grid>
+          </Border>
+        </Grid>
+      </TabItem>
+
+      <TabItem Header="结果显示">
+        <Grid Margin="6"
+              RowDefinitions="Auto,*">
+          <Border Background="#F8FBFF"
+                  BorderBrush="#D7E2F0"
+                  BorderThickness="1"
+                  CornerRadius="16"
+                  Padding="18">
+            <Grid ColumnDefinitions="*,Auto,Auto,Auto,Auto">
+              <StackPanel Orientation="Horizontal"
+                          Spacing="12"
+                          VerticalAlignment="Center">
+                <TextBlock Text="结果视图"
+                           FontSize="18"
+                           FontWeight="SemiBold"
+                           Foreground="#0F172A" />
+                <TextBlock Text="时窗"
+                           VerticalAlignment="Center"
+                           Foreground="#526581" />
+                <ComboBox x:Name="WaveWindowComboBox"
+                          Width="120"
+                          SelectionChanged="OnWaveWindowSelectionChanged">
+                  <ComboBoxItem Content="0.5 秒" Tag="0.5" />
+                  <ComboBoxItem Content="1 秒" Tag="1" />
+                  <ComboBoxItem Content="2 秒" Tag="2" IsSelected="True" />
+                  <ComboBoxItem Content="5 秒" Tag="5" />
+                  <ComboBoxItem Content="10 秒" Tag="10" />
+                </ComboBox>
+              </StackPanel>
+              <Button Grid.Column="1"
+                      Margin="10,0,0,0"
+                      Content="新增视图"
+                      Click="OnAddResultViewClick"
+                      Background="#1D4ED8"
+                      Foreground="White" />
+              <Button Grid.Column="2"
+                      Margin="10,0,0,0"
+                      Content="移除视图"
+                      Click="OnRemoveResultViewClick"
+                      Background="#64748B"
+                      Foreground="White" />
+              <Button Grid.Column="3"
+                      Margin="10,0,0,0"
+                      Content="重置统计"
+                      Click="OnResetStatisticsClick"
+                      Background="#0F766E"
+                      Foreground="White" />
+              <TextBlock Grid.Column="4"
+                         Margin="10,0,0,0"
+                         Text="每个视图都可单独勾选多个通道，系统会用不同颜色区分显示。"
+                         VerticalAlignment="Center"
+                         Foreground="#526581" />
+            </Grid>
+          </Border>
+
+          <Border Grid.Row="1"
+                  Margin="0,16,0,0"
+                  Background="#F8FBFF"
+                  BorderBrush="#D7E2F0"
+                  BorderThickness="1"
+                  CornerRadius="16"
+                  Padding="12">
+            <ScrollViewer HorizontalScrollBarVisibility="Disabled"
+                          VerticalScrollBarVisibility="Auto">
+              <WrapPanel x:Name="ResultViewsGridControl"
+                         Orientation="Horizontal"
+                         ItemWidth="620" />
+            </ScrollViewer>
+          </Border>
+        </Grid>
+      </TabItem>
+
+      <TabItem Header="数据存储">
+        <Grid Margin="6"
+              RowDefinitions="Auto,Auto,*"
+              ColumnDefinitions="420,*">
+          <Border Grid.Row="0"
+                  Grid.RowSpan="3"
+                  Grid.Column="0"
+                  Margin="0,0,16,0"
+                  Background="#F8FBFF"
+                  BorderBrush="#D7E2F0"
+                  BorderThickness="1"
+                  CornerRadius="16"
+                  Padding="18">
+            <Grid RowDefinitions="Auto,Auto,*">
+              <StackPanel Spacing="12">
+                <TextBlock Text="存储配置"
+                           FontWeight="SemiBold"
+                           FontSize="18"
+                           Foreground="#0F172A" />
+
+                <StackPanel Spacing="8">
+                  <TextBlock Text="存储目录"
+                             FontWeight="SemiBold"
+                             Foreground="#1F2937" />
+                  <Grid ColumnDefinitions="*,Auto">
+                    <TextBox x:Name="StorageDirectoryTextBox"
+                             Background="#FFFFFF"
+                             Foreground="#0F172A"
+                             BorderBrush="#64748B"
+                             Watermark="例如: D:\DHData\TDMS" />
+                    <Button Grid.Column="1"
+                            Margin="8,0,0,0"
+                            Content="浏览"
+                            Click="OnBrowseStorageDirectoryClick"
+                            Background="#1D4ED8"
+                            Foreground="White"
+                            Padding="16,8" />
+                  </Grid>
+                </StackPanel>
+
+                <Grid ColumnDefinitions="*,*">
+                  <StackPanel Spacing="8">
+                    <TextBlock Text="任务名称"
+                               FontWeight="SemiBold"
+                               Foreground="#1F2937" />
+                    <TextBox x:Name="StorageTaskNameTextBox"
+                             Background="#FFFFFF"
+                             Foreground="#0F172A"
+                             BorderBrush="#64748B" />
+                  </StackPanel>
+                  <StackPanel Grid.Column="1"
+                              Margin="12,0,0,0"
+                              Spacing="8">
+                    <TextBlock Text="操作员"
+                               FontWeight="SemiBold"
+                               Foreground="#1F2937" />
+                    <TextBox x:Name="StorageOperatorTextBox"
+                             Background="#FFFFFF"
+                             Foreground="#0F172A"
+                             BorderBrush="#64748B" />
+                  </StackPanel>
+                </Grid>
+
+                <Grid ColumnDefinitions="*,*">
+                  <StackPanel Spacing="8">
+                    <TextBlock Text="批次号"
+                               FontWeight="SemiBold"
+                               Foreground="#1F2937" />
+                    <TextBox x:Name="StorageBatchNoTextBox"
+                             Background="#FFFFFF"
+                             Foreground="#0F172A"
+                             BorderBrush="#64748B" />
+                  </StackPanel>
+                  <StackPanel Grid.Column="1"
+                              Margin="12,0,0,0"
+                              Spacing="8">
+                    <TextBlock Text="分段秒数"
+                               FontWeight="SemiBold"
+                               Foreground="#1F2937" />
+                    <TextBox x:Name="StorageSegmentSecondsTextBox"
+                             Background="#FFFFFF"
+                             Foreground="#0F172A"
+                             BorderBrush="#64748B" />
+                  </StackPanel>
+                </Grid>
+
+                <CheckBox x:Name="AutoStartStorageCheckBox"
+                          Content="启动采样时自动开始存储"
+                          Foreground="#1F2937" />
+
+                <Border Background="#FFFFFF"
+                        BorderBrush="#D7E2F0"
+                        BorderThickness="1"
+                        CornerRadius="12"
+                        Padding="12">
+                  <StackPanel Spacing="8">
+                    <TextBlock Text="格式说明"
+                               FontWeight="SemiBold"
+                               Foreground="#0F172A" />
+                    <TextBlock x:Name="StorageFormatText"
+                               Text="TDMS / Float32 / 原始流"
+                               TextWrapping="Wrap"
+                               Foreground="#475569" />
+                    <TextBlock Text="当前实现会把模拟仪器实时数据直接写入 TDMS，不再经过 bin 中转。"
+                               TextWrapping="Wrap"
+                               FontSize="12"
+                               Foreground="#526581" />
+                  </StackPanel>
+                </Border>
+              </StackPanel>
+
+              <Border Grid.Row="1"
+                      Margin="0,16,0,0"
+                      Background="#FFFFFF"
+                      BorderBrush="#D7E2F0"
+                      BorderThickness="1"
+                      CornerRadius="12"
+                      Padding="12">
+                <StackPanel Spacing="10">
+                  <TextBlock Text="会话状态"
+                             FontWeight="SemiBold"
+                             FontSize="16"
+                             Foreground="#0F172A" />
+                  <Grid ColumnDefinitions="Auto,*"
+                        RowDefinitions="Auto,Auto,Auto,Auto,Auto">
+                    <TextBlock Text="状态"
+                               Foreground="#526581" />
+                    <TextBlock x:Name="StorageStatusText"
+                               Grid.Column="1"
+                               Foreground="#0F172A" />
+                    <TextBlock Grid.Row="1"
+                               Text="会话编号"
+                               Foreground="#526581" />
+                    <TextBlock x:Name="StorageSessionIdText"
+                               Grid.Row="1"
+                               Grid.Column="1"
+                               TextWrapping="Wrap"
+                               Foreground="#475569" />
+                    <TextBlock Grid.Row="2"
+                               Text="会话目录"
+                               Foreground="#526581" />
+                    <TextBlock x:Name="StorageSessionPathText"
+                               Grid.Row="2"
+                               Grid.Column="1"
+                               TextWrapping="Wrap"
+                               Foreground="#475569" />
+                    <TextBlock Grid.Row="3"
+                               Text="清单文件"
+                               Foreground="#526581" />
+                    <TextBlock x:Name="StorageManifestPathText"
+                               Grid.Row="3"
+                               Grid.Column="1"
+                               TextWrapping="Wrap"
+                               Foreground="#475569" />
+                    <TextBlock Grid.Row="4"
+                               Text="当前分段"
+                               Foreground="#526581" />
+                    <TextBlock x:Name="StorageCurrentSegmentText"
+                               Grid.Row="4"
+                               Grid.Column="1"
+                               Foreground="#475569" />
+                  </Grid>
+                </StackPanel>
+              </Border>
+
+              <StackPanel Grid.Row="2"
+                          Margin="0,16,0,0"
+                          Spacing="12">
+                <TextBlock Text="控制"
+                           FontWeight="SemiBold"
+                           FontSize="16"
+                           Foreground="#0F172A" />
+                <StackPanel Orientation="Horizontal"
+                            Spacing="10">
+                  <Button x:Name="StorageStartButton"
+                          Content="开始存储"
+                          Click="OnStartStorageClick"
+                          Background="#0F766E"
+                          Foreground="White"
+                          Padding="18,10" />
+                  <Button x:Name="StorageStopButton"
+                          Content="停止存储"
+                          Click="OnStopStorageClick"
+                          Background="#B91C1C"
+                          Foreground="White"
+                          Padding="18,10" />
+                </StackPanel>
+                <TextBlock Text="先初始化并启动采样，再点击“开始存储”；若勾选自动开始，启动采样时会直接落盘。"
+                           TextWrapping="Wrap"
+                           FontSize="12"
+                           Foreground="#526581" />
+              </StackPanel>
+            </Grid>
+          </Border>
+
+          <UniformGrid Grid.Row="0"
+                       Grid.Column="1"
+                       Margin="0,0,0,16"
+                       Rows="1"
+                       Columns="4">
+            <Border Margin="0,0,12,0"
+                    Padding="16"
+                    CornerRadius="14"
+                    Background="#F8FBFF"
+                    BorderBrush="#D7E2F0"
+                    BorderThickness="1">
+              <StackPanel Spacing="6">
+                <TextBlock Text="已入队块数" Foreground="#526581" />
+                <TextBlock x:Name="StorageBlockCountText"
+                           Text="0"
+                           FontSize="28"
+                           FontWeight="Bold"
+                           Foreground="#0F172A" />
+              </StackPanel>
+            </Border>
+
+            <Border Margin="0,0,12,0"
+                    Padding="16"
+                    CornerRadius="14"
+                    Background="#F8FBFF"
+                    BorderBrush="#D7E2F0"
+                    BorderThickness="1">
+              <StackPanel Spacing="6">
+                <TextBlock Text="累计字节" Foreground="#526581" />
+                <TextBlock x:Name="StorageByteCountText"
+                           Text="0 字节"
+                           FontSize="28"
+                           FontWeight="Bold"
+                           Foreground="#0F172A" />
+              </StackPanel>
+            </Border>
+
+            <Border Margin="0,0,12,0"
+                    Padding="16"
+                    CornerRadius="14"
+                    Background="#F8FBFF"
+                    BorderBrush="#D7E2F0"
+                    BorderThickness="1">
+              <StackPanel Spacing="6">
+                <TextBlock Text="段文件数" Foreground="#526581" />
+                <TextBlock x:Name="StorageSegmentCountText"
+                           Text="0"
+                           FontSize="28"
+                           FontWeight="Bold"
+                           Foreground="#0F172A" />
+              </StackPanel>
+            </Border>
+
+            <Border Padding="16"
+                    CornerRadius="14"
+                    Background="#F8FBFF"
+                    BorderBrush="#D7E2F0"
+                    BorderThickness="1">
+              <StackPanel Spacing="6">
+                <TextBlock Text="入队失败" Foreground="#526581" />
+                <TextBlock x:Name="StorageFailureCountText"
+                           Text="0"
+                           FontSize="28"
+                           FontWeight="Bold"
+                           Foreground="#0F172A" />
+              </StackPanel>
+            </Border>
+          </UniformGrid>
+
+          <Border Grid.Row="1"
+                  Grid.Column="1"
+                  Margin="0,0,0,16"
+                  Background="#F8FBFF"
+                  BorderBrush="#D7E2F0"
+                  BorderThickness="1"
+                  CornerRadius="16"
+                  Padding="18">
+            <TextBlock Text="当前页面用于实时 TDMS 存储。模拟模式下启动采样后，系统会按 Float32 直接写入 TDMS，每个分段都会显示在下方列表中。"
+                       TextWrapping="Wrap"
+                       Foreground="#475569" />
+          </Border>
+
+          <Border Grid.Row="2"
+                  Grid.Column="1"
+                  Background="#F8FBFF"
+                  BorderBrush="#D7E2F0"
+                  BorderThickness="1"
+                  CornerRadius="16"
+                  Padding="18">
+            <Grid RowDefinitions="Auto,*">
+              <TextBlock Text="已生成段文件"
+                         FontSize="18"
+                         FontWeight="SemiBold"
+                         Foreground="#0F172A" />
+              <ListBox x:Name="StorageSegmentsListBox"
+                       Grid.Row="1"
+                       Margin="0,16,0,0"
+                       Background="Transparent"
+                       BorderThickness="0">
+                <ListBox.ItemTemplate>
+                  <DataTemplate>
+                    <Border Background="#FFFFFF"
+                            BorderBrush="#D7E2F0"
+                            BorderThickness="1"
+                            CornerRadius="12"
+                            Padding="12"
+                            Margin="0,0,0,10">
+                      <StackPanel Spacing="6">
+                        <TextBlock Text="{Binding Title}"
+                                   FontSize="15"
+                                   FontWeight="SemiBold"
+                                   Foreground="#0F172A" />
+                        <TextBlock Text="{Binding Subtitle}"
+                                   TextWrapping="Wrap"
+                                   Foreground="#475569" />
+                        <TextBlock Text="{Binding Path}"
+                                   TextWrapping="Wrap"
+                                   FontSize="12"
+                                   Foreground="#2563EB" />
+                      </StackPanel>
+                    </Border>
+                  </DataTemplate>
+                </ListBox.ItemTemplate>
+              </ListBox>
+            </Grid>
+          </Border>
+        </Grid>
+      </TabItem>
+    </TabControl>
+  </Grid>
+</Window>
+
+
+
+

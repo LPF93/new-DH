@@ -1,0 +1,9 @@
+D:\desktop\DH\src\AcqEngine.Storage.Abstractions\bin\Debug\net8.0\AcqEngine.Core.dll
+D:\desktop\DH\src\AcqEngine.Storage.Abstractions\bin\Debug\net8.0\AcqEngine.Core.pdb
+D:\desktop\DH\temp-build\storage-abs-obj-5\Debug\net8.0\AcqEngine.Storage.Abstractions.csproj.AssemblyReference.cache
+D:\desktop\DH\temp-build\storage-abs-obj-5\Debug\net8.0\AcqEngine.Storage.Abstractions.GeneratedMSBuildEditorConfig.editorconfig
+D:\desktop\DH\temp-build\storage-abs-obj-5\Debug\net8.0\AcqEngine.Storage.Abstractions.csproj.CoreCompileInputs.cache
+D:\desktop\DH\temp-build\storage-abs-obj-5\Debug\net8.0\AcqEngin.08A2D892.Up2Date
+D:\desktop\DH\temp-build\storage-abs-obj-5\Debug\net8.0\AcqEngine.Storage.Abstractions.dll
+D:\desktop\DH\temp-build\storage-abs-obj-5\Debug\net8.0\refint\AcqEngine.Storage.Abstractions.dll
+D:\desktop\DH\temp-build\storage-abs-obj-5\Debug\net8.0\AcqEngine.Storage.Abstractions.pdb

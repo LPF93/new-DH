@@ -1,0 +1,11 @@
+D:\desktop\DH\src\AcqEngine.Core\bin\Debug\net8.0\AcqEngine.Core.deps.json
+D:\desktop\DH\src\AcqEngine.Core\bin\Debug\net8.0\AcqEngine.Core.dll
+D:\desktop\DH\src\AcqEngine.Core\bin\Debug\net8.0\AcqEngine.Core.pdb
+D:\desktop\DH\src\AcqEngine.Core\obj\Debug\net8.0\AcqEngine.Core.GeneratedMSBuildEditorConfig.editorconfig
+D:\desktop\DH\src\AcqEngine.Core\obj\Debug\net8.0\AcqEngine.Core.AssemblyInfoInputs.cache
+D:\desktop\DH\src\AcqEngine.Core\obj\Debug\net8.0\AcqEngine.Core.AssemblyInfo.cs
+D:\desktop\DH\src\AcqEngine.Core\obj\Debug\net8.0\AcqEngine.Core.csproj.CoreCompileInputs.cache
+D:\desktop\DH\src\AcqEngine.Core\obj\Debug\net8.0\AcqEngine.Core.dll
+D:\desktop\DH\src\AcqEngine.Core\obj\Debug\net8.0\refint\AcqEngine.Core.dll
+D:\desktop\DH\src\AcqEngine.Core\obj\Debug\net8.0\AcqEngine.Core.pdb
+D:\desktop\DH\src\AcqEngine.Core\obj\Debug\net8.0\ref\AcqEngine.Core.dll

@@ -1,0 +1,13 @@
+D:\desktop\DH\temp-build\abst-bin-3\Debug\net8.0\AcqEngine.Storage.Abstractions.deps.json
+D:\desktop\DH\temp-build\abst-bin-3\Debug\net8.0\AcqEngine.Storage.Abstractions.dll
+D:\desktop\DH\temp-build\abst-bin-3\Debug\net8.0\AcqEngine.Storage.Abstractions.pdb
+D:\desktop\DH\src\AcqEngine.Storage.Abstractions\obj\temp-2\Debug\net8.0\AcqEngine.Storage.Abstractions.csproj.AssemblyReference.cache
+D:\desktop\DH\src\AcqEngine.Storage.Abstractions\obj\temp-2\Debug\net8.0\AcqEngine.Storage.Abstractions.GeneratedMSBuildEditorConfig.editorconfig
+D:\desktop\DH\src\AcqEngine.Storage.Abstractions\obj\temp-2\Debug\net8.0\AcqEngine.Storage.Abstractions.AssemblyInfoInputs.cache
+D:\desktop\DH\src\AcqEngine.Storage.Abstractions\obj\temp-2\Debug\net8.0\AcqEngine.Storage.Abstractions.AssemblyInfo.cs
+D:\desktop\DH\src\AcqEngine.Storage.Abstractions\obj\temp-2\Debug\net8.0\AcqEngine.Storage.Abstractions.csproj.CoreCompileInputs.cache
+D:\desktop\DH\src\AcqEngine.Storage.Abstractions\obj\temp-2\Debug\net8.0\AcqEngin.08A2D892.Up2Date
+D:\desktop\DH\src\AcqEngine.Storage.Abstractions\obj\temp-2\Debug\net8.0\AcqEngine.Storage.Abstractions.dll
+D:\desktop\DH\src\AcqEngine.Storage.Abstractions\obj\temp-2\Debug\net8.0\refint\AcqEngine.Storage.Abstractions.dll
+D:\desktop\DH\src\AcqEngine.Storage.Abstractions\obj\temp-2\Debug\net8.0\AcqEngine.Storage.Abstractions.pdb
+D:\desktop\DH\src\AcqEngine.Storage.Abstractions\obj\temp-2\Debug\net8.0\ref\AcqEngine.Storage.Abstractions.dll
