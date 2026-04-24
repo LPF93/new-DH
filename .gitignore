@@ -1,0 +1,10 @@
+bin/
+obj/
+obj2/
+temp-build/
+
+build*.log
+*_diag*.txt
+err*.txt
+errors*.txt
+latest_*.txt

@@ -1,83 +1,60 @@
-# DH 一期开发骨架
+# DH 数据采集系统
 
-本仓库已基于 architecture_plan.md 完成一期可实施骨架，覆盖以下主链路：
+本项目用于设备 SDK 实时采集、通道管理、结果预览和 TDMS 文件落盘。
 
-- 双进程工程拆分：AcqShell.UI / AcqEngine.Host
-- 采集入口：支持 `模拟回调` 与 `真实SDK回调` 两种模式
-- 内存与分发：BlockPool + IngestDispatcher + FrameBus + RecentDataCache
-- 写盘链路：StorageOrchestrator + IContainerWriter（TDMS/HDF5 两套实现骨架）
-- 处理链路：ProcessingPipeline + PassThrough + BasicStats
-- 命名策略：模板化文件名生成与非法字符清洗
-- 会话产物：session.manifest.json 基础落盘
-- 基础测试：命名、BlockPool、处理流水线
+当前版本特性：
 
-## 解决方案结构
+- 仅保留设备 SDK 采集模式，不再包含旧的演示采样链路
+- UI 端支持设备初始化、通道选择、实时采样和单文件 TDMS 存储
+- 存储目录由用户指定，文件可按自定义名称或采样开始时间命名
+- 文件重名时自动按 `_001`、`_002` 递增
+- TDMS 文件直接写入目标目录，不再创建多级子目录
+- 默认统一使用 UTF-8
 
-- src/AcqShell.UI
-- src/AcqShell.Contracts
-- src/AcqEngine.Host
-- src/AcqEngine.Core
-- src/AcqEngine.DeviceSdk
-- src/AcqEngine.Storage.Abstractions
-- src/AcqEngine.Storage.Tdms
-- src/AcqEngine.Storage.Hdf5
-- src/AcqEngine.Processing
-- src/AcqEngine.Diagnostics
-- src/AcqEngine.Replay
-- tests/AcqEngine.Tests
+## 项目结构
 
-## 快速启动
+- `src/AcqShell.UI`：桌面界面
+- `src/AcqEngine.Host`：采集主机进程
+- `src/AcqEngine.DeviceSdk`：设备 SDK 接入
+- `src/AcqEngine.Storage.Tdms`：TDMS 存储实现
+- `src/AcqEngine.Storage.Hdf5`：HDF5 存储实现
+- `src/AcqEngine.Storage.Abstractions`：存储抽象
+- `src/AcqEngine.Core`：核心模型与基础设施
 
-1. 构建：
+## 运行方式
+
+构建：
 
 ```powershell
 dotnet build .\DH.Acq.sln
 ```
 
-2. 运行引擎：
+运行 Host：
 
 ```powershell
 dotnet run --project .\src\AcqEngine.Host\AcqEngine.Host.csproj
 ```
 
-3. 运行 UI：
+运行 UI：
 
 ```powershell
 dotnet run --project .\src\AcqShell.UI\AcqShell.UI.csproj
 ```
 
-4. 执行测试：
+## 配置说明
 
-```powershell
-dotnet test .\DH.Acq.sln --no-build
-```
+Host 默认配置文件位于 `src/AcqEngine.Host/appsettings.json`。
 
-## 当前说明
+重点配置项：
 
-- 当前存储写入器为可运行骨架，文件扩展名分别为 .tdms / .h5，内部数据帧格式为自定义二进制头 + payload。
-- 后续可在不改动采集主链路的情况下替换为真实 NI TDMS 与 HDF5 SDK 调用。
-- 运行时目标当前为 net8.0（因本机模板不支持 net6 初始化）；如部署到 Win7 约束环境，建议在安装 net6 SDK/运行时后统一回切 TargetFramework。
+- `sdk.sdkDirectory`：SDK 根目录
+- `sdk.configDirectory`：配置目录
+- `sdk.dataCountPerCallback`：每次回调数据量
+- `storage.basePath`：默认输出目录
+- `storage.primaryFormat`：主存储格式
 
-## SDK 回调联调流程
+## 当前约束
 
-1. 先启动模拟仪器程序：
-
-- dh11/模拟仪器程序(运行AutoStartVirtualInstrument.exe)/
-
-2. 在模拟仪器中填写目标 IP（本机 IP）。
-
-3. 修改引擎配置：
-
-- 文件：src/AcqEngine.Host/appsettings.json
-- 将 `sdk.mode` 改为 `SDK`（或 `真实`）
-- 将 `sdk.sdkDirectory` / `sdk.configDirectory` 指向 SDK 目录（默认示例为 dh11/DHDAS安装包/srcfile）
-
-4. 启动引擎：
-
-```powershell
-dotnet run --project .\src\AcqEngine.Host\AcqEngine.Host.csproj
-```
-
-5. 观察引擎日志：
-
-- 若回调正常，会持续输出块数、字节数、队列状态。
+- 当前主流程按正式设备 SDK 路径开发
+- 单文件 TDMS 是默认落盘方式
+- 若本机 `dotnet restore` 环境异常，重新构建前需要先修复 NuGet 回退包目录配置

@@ -63,8 +63,7 @@ public sealed class TdmsWriter : IContainerWriter
         CloseCurrentSegment();
 
         var sessionDir = _namingPolicy.BuildSessionDirectory(_session);
-        var streamDir = Path.Combine(sessionDir, streamKind == StreamKind.Raw ? "raw" : "proc");
-        Directory.CreateDirectory(streamDir);
+        Directory.CreateDirectory(sessionDir);
 
         var segmentFile = _namingPolicy.BuildSegmentFileName(_session, streamKind, segmentNo);
         if (!segmentFile.EndsWith(_extension, StringComparison.OrdinalIgnoreCase))
@@ -72,9 +71,7 @@ public sealed class TdmsWriter : IContainerWriter
             segmentFile += _extension;
         }
 
-        var segmentPath = Path.Combine(streamDir, segmentFile);
-        DeleteIfExists(segmentPath);
-        DeleteIfExists(segmentPath + "_index");
+        var segmentPath = ResolveUniqueFilePath(sessionDir, segmentFile);
 
         var fileName = SanitizeAscii(Path.GetFileNameWithoutExtension(segmentPath));
         var fileHandle = IntPtr.Zero;
@@ -519,16 +516,6 @@ public sealed class TdmsWriter : IContainerWriter
         throw new IOException($"{operation} 失败: {result}.{suffix}");
     }
 
-    private static void DeleteIfExists(string path)
-    {
-        if (!File.Exists(path))
-        {
-            return;
-        }
-
-        File.Delete(path);
-    }
-
     private static string SanitizeAscii(string value)
     {
         if (string.IsNullOrWhiteSpace(value))
@@ -544,6 +531,22 @@ public sealed class TdmsWriter : IContainerWriter
 
         var result = builder.ToString().Trim();
         return string.IsNullOrWhiteSpace(result) ? "session" : result;
+    }
+
+    private static string ResolveUniqueFilePath(string directory, string fileName)
+    {
+        var extension = Path.GetExtension(fileName);
+        var baseName = Path.GetFileNameWithoutExtension(fileName);
+        var candidate = Path.Combine(directory, fileName);
+        var index = 1;
+
+        while (File.Exists(candidate) || File.Exists(candidate + "_index"))
+        {
+            candidate = Path.Combine(directory, $"{baseName}_{index:000}{extension}");
+            index++;
+        }
+
+        return candidate;
     }
 
     private sealed class TdmsSourceState

@@ -44,8 +44,7 @@ public sealed class Hdf5Writer : IContainerWriter
 		await CloseSegmentAsync(ct);
 
 		var sessionDir = _namingPolicy.BuildSessionDirectory(_session);
-		var streamDir = Path.Combine(sessionDir, streamKind == StreamKind.Raw ? "raw" : "proc");
-		Directory.CreateDirectory(streamDir);
+		Directory.CreateDirectory(sessionDir);
 
 		var segmentFile = _namingPolicy.BuildSegmentFileName(_session, streamKind, segmentNo);
 		if (!segmentFile.EndsWith(_extension, StringComparison.OrdinalIgnoreCase))
@@ -53,7 +52,7 @@ public sealed class Hdf5Writer : IContainerWriter
 			segmentFile += _extension;
 		}
 
-		var segmentPath = Path.Combine(streamDir, segmentFile);
+		var segmentPath = ResolveUniqueFilePath(sessionDir, segmentFile);
 		_segmentStream = new FileStream(
 			segmentPath,
 			FileMode.Create,
@@ -148,5 +147,21 @@ public sealed class Hdf5Writer : IContainerWriter
 		BinaryPrimitives.WriteInt64LittleEndian(span.Slice(44, 8), block.Header.HostTimestampNs);
 		BinaryPrimitives.WriteInt32LittleEndian(span.Slice(52, 4), block.PayloadLength);
 		return headerBytes;
+	}
+
+	private static string ResolveUniqueFilePath(string directory, string fileName)
+	{
+		var extension = Path.GetExtension(fileName);
+		var baseName = Path.GetFileNameWithoutExtension(fileName);
+		var candidate = Path.Combine(directory, fileName);
+		var index = 1;
+
+		while (File.Exists(candidate))
+		{
+			candidate = Path.Combine(directory, $"{baseName}_{index:000}{extension}");
+			index++;
+		}
+
+		return candidate;
 	}
 }

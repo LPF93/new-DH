@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using AcqEngine.Core;
@@ -29,22 +30,16 @@ internal static class TdmsNative
         try
         {
             ResolvedDllDirectory = ResolveDllDirectory();
-            if (string.IsNullOrWhiteSpace(ResolvedDllDirectory) || !Directory.Exists(ResolvedDllDirectory))
+            if (!IsValidDllDirectory(ResolvedDllDirectory))
             {
                 AvailabilityMessage = "未找到 TDMS 原生库目录。可通过 TDMS_DLL_DIR 环境变量指定 nilibddc.dll 所在目录。";
                 return;
             }
 
-            PrepareEnvironment(ResolvedDllDirectory);
-            PreloadDependencies(ResolvedDllDirectory);
+            PrepareEnvironment(ResolvedDllDirectory!);
+            PreloadDependencies(ResolvedDllDirectory!);
 
-            var mainLibraryPath = Path.Combine(ResolvedDllDirectory, DllName);
-            if (!File.Exists(mainLibraryPath))
-            {
-                AvailabilityMessage = $"未找到 {DllName}：{mainLibraryPath}";
-                return;
-            }
-
+            var mainLibraryPath = Path.Combine(ResolvedDllDirectory!, DllName);
             NativeLibrary.Load(mainLibraryPath);
             IsAvailable = true;
             AvailabilityMessage = $"已加载 TDMS 原生库：{mainLibraryPath}";
@@ -97,7 +92,7 @@ internal static class TdmsNative
     private static string? ResolveDllDirectory()
     {
         var env = Environment.GetEnvironmentVariable("TDMS_DLL_DIR");
-        if (!string.IsNullOrWhiteSpace(env) && Directory.Exists(env))
+        if (IsValidDllDirectory(env))
         {
             return env;
         }
@@ -107,21 +102,45 @@ internal static class TdmsNative
         {
             var candidates = new[]
             {
+                Path.Combine(repoRoot, "TDM C DLL[官方源文件]", "dev", "bin", "64-bit"),
+                Path.Combine(repoRoot, "tdms", "TDM C DLL[官方源文件]", "dev", "bin", "64-bit"),
                 Path.Combine(repoRoot, "dh11", "DH-example", "tdms", "TDM C DLL[官方源文件]", "dev", "bin", "64-bit"),
-                Path.Combine(repoRoot, "tdms", "TDM C DLL[官方源文件]", "dev", "bin", "64-bit")
+                Path.Combine(repoRoot, "TDM C DLL[官方源文件]", "dev", "bin", "32-bit"),
+                Path.Combine(repoRoot, "tdms", "TDM C DLL[官方源文件]", "dev", "bin", "32-bit"),
+                Path.Combine(repoRoot, "dh11", "DH-example", "tdms", "TDM C DLL[官方源文件]", "dev", "bin", "32-bit")
             };
 
             foreach (var candidate in candidates)
             {
-                if (Directory.Exists(candidate))
+                if (IsValidDllDirectory(candidate))
                 {
                     return candidate;
                 }
             }
+
+            var discoveredDirectory = Directory
+                .EnumerateFiles(repoRoot, DllName, SearchOption.AllDirectories)
+                .Select(Path.GetDirectoryName)
+                .Where(static path => !string.IsNullOrWhiteSpace(path))
+                .OrderByDescending(static path => path!.Contains("64-bit", StringComparison.OrdinalIgnoreCase))
+                .ThenBy(static path => path, StringComparer.OrdinalIgnoreCase)
+                .FirstOrDefault(static path => IsValidDllDirectory(path!));
+
+            if (!string.IsNullOrWhiteSpace(discoveredDirectory))
+            {
+                return discoveredDirectory;
+            }
         }
 
         var appDir = AppContext.BaseDirectory;
-        return File.Exists(Path.Combine(appDir, DllName)) ? appDir : null;
+        return IsValidDllDirectory(appDir) ? appDir : null;
+    }
+
+    private static bool IsValidDllDirectory(string? directory)
+    {
+        return !string.IsNullOrWhiteSpace(directory) &&
+               Directory.Exists(directory) &&
+               File.Exists(Path.Combine(directory, DllName));
     }
 
     private static void PrepareEnvironment(string dllDirectory)

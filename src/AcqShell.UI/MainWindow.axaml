@@ -63,17 +63,15 @@
                            FontSize="18"
                            Foreground="#0F172A"/>
 
-                <StackPanel Orientation="Horizontal" Spacing="18">
-                  <RadioButton x:Name="NativeModeRadio"
-                               Content="设备 SDK 模式"
-                               IsChecked="True"
-                               Checked="OnDataSourceModeChanged"
-                               Foreground="#1F2937" />
-                  <RadioButton x:Name="MockModeRadio"
-                               Content="模拟模式"
-                               Checked="OnDataSourceModeChanged"
-                               Foreground="#1F2937" />
-                </StackPanel>
+                <Border Background="#EFF6FF"
+                        BorderBrush="#BFDBFE"
+                        BorderThickness="1"
+                        CornerRadius="10"
+                        Padding="12,8">
+                  <TextBlock Text="当前模式：设备 SDK"
+                             FontWeight="SemiBold"
+                             Foreground="#1D4ED8" />
+                </Border>
 
                 <StackPanel x:Name="NativeConfigPanel" Spacing="8">
                   <TextBlock Text="配置目录"
@@ -99,36 +97,6 @@
                              Foreground="#526581" />
                 </StackPanel>
 
-                <StackPanel x:Name="MockConfigPanel" IsVisible="False" Spacing="8">
-                  <TextBlock Text="模拟拓扑"
-                             FontWeight="SemiBold"
-                             Foreground="#1F2937" />
-                  <Grid RowDefinitions="Auto,Auto"
-                        ColumnDefinitions="Auto,*">
-                    <TextBlock Text="设备数"
-                               VerticalAlignment="Center"
-                               Foreground="#475569" />
-                    <TextBox x:Name="MockDeviceCountTextBox"
-                             Grid.Column="1"
-                             Margin="8,0,0,0"
-                             Text="1"
-                             Background="#FFFFFF"
-                             Foreground="#0F172A"
-                             BorderBrush="#64748B" />
-                    <TextBlock Grid.Row="1"
-                               Text="每台通道数"
-                               VerticalAlignment="Center"
-                               Foreground="#475569" />
-                    <TextBox x:Name="MockChannelCountTextBox"
-                             Grid.Row="1"
-                             Grid.Column="1"
-                             Margin="8,8,0,0"
-                             Text="16"
-                             Background="#FFFFFF"
-                             Foreground="#0F172A"
-                             BorderBrush="#64748B" />
-                  </Grid>
-                </StackPanel>
               </StackPanel>
 
               <Border Grid.Row="1"
@@ -523,10 +491,10 @@
 
       <TabItem Header="数据存储">
         <Grid Margin="6"
-              RowDefinitions="Auto,Auto,*"
+              RowDefinitions="Auto,*"
               ColumnDefinitions="420,*">
           <Border Grid.Row="0"
-                  Grid.RowSpan="3"
+                  Grid.RowSpan="2"
                   Grid.Column="0"
                   Margin="0,0,16,0"
                   Background="#F8FBFF"
@@ -534,7 +502,7 @@
                   BorderThickness="1"
                   CornerRadius="16"
                   Padding="18">
-            <Grid RowDefinitions="Auto,Auto,*">
+            <Grid RowDefinitions="Auto,*">
               <StackPanel Spacing="12">
                 <TextBlock Text="存储配置"
                            FontWeight="SemiBold"
@@ -561,132 +529,35 @@
                   </Grid>
                 </StackPanel>
 
-                <Grid ColumnDefinitions="*,*">
-                  <StackPanel Spacing="8">
-                    <TextBlock Text="任务名称"
-                               FontWeight="SemiBold"
-                               Foreground="#1F2937" />
-                    <TextBox x:Name="StorageTaskNameTextBox"
-                             Background="#FFFFFF"
-                             Foreground="#0F172A"
-                             BorderBrush="#64748B" />
+                <StackPanel Spacing="8">
+                  <TextBlock Text="文件名规则"
+                             FontWeight="SemiBold"
+                             Foreground="#1F2937" />
+                  <StackPanel Orientation="Horizontal"
+                              Spacing="18">
+                    <RadioButton x:Name="CustomFileNameRadio"
+                                 Content="自定义文件名"
+                                 IsChecked="True"
+                                 Checked="OnStorageFileNameModeChanged"
+                                 Foreground="#1F2937" />
+                    <RadioButton x:Name="StorageTimeFileNameRadio"
+                                 Content="按时间命名"
+                                 Checked="OnStorageFileNameModeChanged"
+                                 Foreground="#1F2937" />
                   </StackPanel>
-                  <StackPanel Grid.Column="1"
-                              Margin="12,0,0,0"
-                              Spacing="8">
-                    <TextBlock Text="操作员"
-                               FontWeight="SemiBold"
-                               Foreground="#1F2937" />
-                    <TextBox x:Name="StorageOperatorTextBox"
-                             Background="#FFFFFF"
-                             Foreground="#0F172A"
-                             BorderBrush="#64748B" />
-                  </StackPanel>
-                </Grid>
-
-                <Grid ColumnDefinitions="*,*">
-                  <StackPanel Spacing="8">
-                    <TextBlock Text="批次号"
-                               FontWeight="SemiBold"
-                               Foreground="#1F2937" />
-                    <TextBox x:Name="StorageBatchNoTextBox"
-                             Background="#FFFFFF"
-                             Foreground="#0F172A"
-                             BorderBrush="#64748B" />
-                  </StackPanel>
-                  <StackPanel Grid.Column="1"
-                              Margin="12,0,0,0"
-                              Spacing="8">
-                    <TextBlock Text="分段秒数"
-                               FontWeight="SemiBold"
-                               Foreground="#1F2937" />
-                    <TextBox x:Name="StorageSegmentSecondsTextBox"
-                             Background="#FFFFFF"
-                             Foreground="#0F172A"
-                             BorderBrush="#64748B" />
-                  </StackPanel>
-                </Grid>
+                  <TextBox x:Name="StorageCustomFileNameTextBox"
+                           Background="#FFFFFF"
+                           Foreground="#0F172A"
+                           BorderBrush="#64748B"
+                           Watermark="输入文件名" />
+                </StackPanel>
 
                 <CheckBox x:Name="AutoStartStorageCheckBox"
-                          Content="启动采样时自动开始存储"
+                          Content="启动采样后自动开始存储"
                           Foreground="#1F2937" />
-
-                <Border Background="#FFFFFF"
-                        BorderBrush="#D7E2F0"
-                        BorderThickness="1"
-                        CornerRadius="12"
-                        Padding="12">
-                  <StackPanel Spacing="8">
-                    <TextBlock Text="格式说明"
-                               FontWeight="SemiBold"
-                               Foreground="#0F172A" />
-                    <TextBlock x:Name="StorageFormatText"
-                               Text="TDMS / Float32 / 原始流"
-                               TextWrapping="Wrap"
-                               Foreground="#475569" />
-                    <TextBlock Text="当前实现会把模拟仪器实时数据直接写入 TDMS，不再经过 bin 中转。"
-                               TextWrapping="Wrap"
-                               FontSize="12"
-                               Foreground="#526581" />
-                  </StackPanel>
-                </Border>
               </StackPanel>
 
-              <Border Grid.Row="1"
-                      Margin="0,16,0,0"
-                      Background="#FFFFFF"
-                      BorderBrush="#D7E2F0"
-                      BorderThickness="1"
-                      CornerRadius="12"
-                      Padding="12">
-                <StackPanel Spacing="10">
-                  <TextBlock Text="会话状态"
-                             FontWeight="SemiBold"
-                             FontSize="16"
-                             Foreground="#0F172A" />
-                  <Grid ColumnDefinitions="Auto,*"
-                        RowDefinitions="Auto,Auto,Auto,Auto,Auto">
-                    <TextBlock Text="状态"
-                               Foreground="#526581" />
-                    <TextBlock x:Name="StorageStatusText"
-                               Grid.Column="1"
-                               Foreground="#0F172A" />
-                    <TextBlock Grid.Row="1"
-                               Text="会话编号"
-                               Foreground="#526581" />
-                    <TextBlock x:Name="StorageSessionIdText"
-                               Grid.Row="1"
-                               Grid.Column="1"
-                               TextWrapping="Wrap"
-                               Foreground="#475569" />
-                    <TextBlock Grid.Row="2"
-                               Text="会话目录"
-                               Foreground="#526581" />
-                    <TextBlock x:Name="StorageSessionPathText"
-                               Grid.Row="2"
-                               Grid.Column="1"
-                               TextWrapping="Wrap"
-                               Foreground="#475569" />
-                    <TextBlock Grid.Row="3"
-                               Text="清单文件"
-                               Foreground="#526581" />
-                    <TextBlock x:Name="StorageManifestPathText"
-                               Grid.Row="3"
-                               Grid.Column="1"
-                               TextWrapping="Wrap"
-                               Foreground="#475569" />
-                    <TextBlock Grid.Row="4"
-                               Text="当前分段"
-                               Foreground="#526581" />
-                    <TextBlock x:Name="StorageCurrentSegmentText"
-                               Grid.Row="4"
-                               Grid.Column="1"
-                               Foreground="#475569" />
-                  </Grid>
-                </StackPanel>
-              </Border>
-
-              <StackPanel Grid.Row="2"
+              <StackPanel Grid.Row="1"
                           Margin="0,16,0,0"
                           Spacing="12">
                 <TextBlock Text="控制"
@@ -708,10 +579,10 @@
                           Foreground="White"
                           Padding="18,10" />
                 </StackPanel>
-                <TextBlock Text="先初始化并启动采样，再点击“开始存储”；若勾选自动开始，启动采样时会直接落盘。"
+                <TextBlock x:Name="StorageStatusText"
+                           Text="未开始存储"
                            TextWrapping="Wrap"
-                           FontSize="12"
-                           Foreground="#526581" />
+                           Foreground="#0F172A" />
               </StackPanel>
             </Grid>
           </Border>
@@ -760,7 +631,7 @@
                     BorderBrush="#D7E2F0"
                     BorderThickness="1">
               <StackPanel Spacing="6">
-                <TextBlock Text="段文件数" Foreground="#526581" />
+                <TextBlock Text="文件数" Foreground="#526581" />
                 <TextBlock x:Name="StorageSegmentCountText"
                            Text="0"
                            FontSize="28"
@@ -787,26 +658,13 @@
 
           <Border Grid.Row="1"
                   Grid.Column="1"
-                  Margin="0,0,0,16"
-                  Background="#F8FBFF"
-                  BorderBrush="#D7E2F0"
-                  BorderThickness="1"
-                  CornerRadius="16"
-                  Padding="18">
-            <TextBlock Text="当前页面用于实时 TDMS 存储。模拟模式下启动采样后，系统会按 Float32 直接写入 TDMS，每个分段都会显示在下方列表中。"
-                       TextWrapping="Wrap"
-                       Foreground="#475569" />
-          </Border>
-
-          <Border Grid.Row="2"
-                  Grid.Column="1"
                   Background="#F8FBFF"
                   BorderBrush="#D7E2F0"
                   BorderThickness="1"
                   CornerRadius="16"
                   Padding="18">
             <Grid RowDefinitions="Auto,*">
-              <TextBlock Text="已生成段文件"
+              <TextBlock Text="输出文件"
                          FontSize="18"
                          FontWeight="SemiBold"
                          Foreground="#0F172A" />

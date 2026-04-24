@@ -19,6 +19,13 @@ public enum StorageFormat
 	Hdf5
 }
 
+public enum StorageFileNameMode
+{
+	Template,
+	Custom,
+	StorageTime
+}
+
 public enum SampleType
 {
 	Int16,
@@ -53,6 +60,9 @@ public sealed record SessionContext
 	public DateTimeOffset StartTime { get; init; } = DateTimeOffset.UtcNow;
 	public DateTimeOffset? EndTime { get; init; }
 	public StorageFormat StorageFormat { get; init; } = StorageFormat.Tdms;
+	public StorageFileNameMode FileNameMode { get; init; } = StorageFileNameMode.Template;
+	public string CustomFileName { get; init; } = string.Empty;
+	public string StorageTimeFormat { get; init; } = "yyyyMMdd_HHmmss";
 	public string FileNamingTemplate { get; init; } = "{TaskName}_{Stream}_{Date:yyyyMMdd}_{StartTime:HHmmss}_{AutoInc:0000}_seg{SegmentNo:0000}";
 	public IReadOnlyList<SourceDescriptor> Sources { get; init; } = Array.Empty<SourceDescriptor>();
 	public bool WriteRaw { get; init; } = true;

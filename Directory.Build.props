@@ -3,5 +3,7 @@
     <BaseIntermediateOutputPath Condition="'$(BaseIntermediateOutputPath)' == ''">$(MSBuildThisFileDirectory)temp-build\obj\$(MSBuildProjectName)\</BaseIntermediateOutputPath>
     <MSBuildProjectExtensionsPath Condition="'$(MSBuildProjectExtensionsPath)' == ''">$(BaseIntermediateOutputPath)</MSBuildProjectExtensionsPath>
     <DefaultItemExcludes>$(DefaultItemExcludes);bin\**;obj\**;obj*\**</DefaultItemExcludes>
+    <CodePage>65001</CodePage>
+    <Utf8Output>true</Utf8Output>
   </PropertyGroup>
 </Project>

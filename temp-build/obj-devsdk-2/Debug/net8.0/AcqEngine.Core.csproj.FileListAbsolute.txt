@@ -1,9 +1,0 @@
-D:\desktop\DH\temp-build\devicesdk-bin-2\Debug\net8.0\AcqEngine.Core.deps.json
-D:\desktop\DH\temp-build\devicesdk-bin-2\Debug\net8.0\AcqEngine.Core.dll
-D:\desktop\DH\temp-build\devicesdk-bin-2\Debug\net8.0\AcqEngine.Core.pdb
-D:\desktop\DH\temp-build\obj-devsdk-2\Debug\net8.0\AcqEngine.Core.GeneratedMSBuildEditorConfig.editorconfig
-D:\desktop\DH\temp-build\obj-devsdk-2\Debug\net8.0\AcqEngine.Core.csproj.CoreCompileInputs.cache
-D:\desktop\DH\temp-build\obj-devsdk-2\Debug\net8.0\AcqEngine.Core.dll
-D:\desktop\DH\temp-build\obj-devsdk-2\Debug\net8.0\refint\AcqEngine.Core.dll
-D:\desktop\DH\temp-build\obj-devsdk-2\Debug\net8.0\AcqEngine.Core.pdb
-D:\desktop\DH\temp-build\obj-devsdk-2\Debug\net8.0\ref\AcqEngine.Core.dll

@@ -1,5 +1,4 @@
 ﻿using System.Buffers.Binary;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
@@ -13,7 +12,6 @@ using AcqEngine.Core;
 using AcqEngine.DeviceSdk;
 using AcqEngine.Storage.Abstractions;
 using AcqEngine.Storage.Tdms;
-using AcqShell.Contracts;
 
 namespace AcqShell.UI;
 
@@ -33,11 +31,7 @@ public partial class MainWindow : Window
     private readonly ObservableCollection<StorageSegmentItem> _storageSegments = new();
     private readonly Dictionary<long, Queue<double>> _channelWaveBuffers = new();
     private readonly List<IDescriptorAcquisitionSource> _validationSources = new();
-    private readonly ConcurrentDictionary<int, long> _storageBlocksBySource = new();
     private StorageOrchestrator? _storageOrchestrator;
-    private SessionContext? _storageSession;
-    private string _storageManifestPath = string.Empty;
-    private bool _useNativeMode = true;
     private bool _sdkInitialized;
     private int _selectedMachineId = -1;
     private double _detectedSampleRateHz = DefaultSampleRateHz;
@@ -57,7 +51,6 @@ public partial class MainWindow : Window
         BindCollections();
         InitializeResultViews();
         InitializeStorageState();
-        UpdateModeState();
         UpdateWaveBufferCapacity();
         InitializeCounters();
         UpdateStorageSummary();
@@ -86,36 +79,12 @@ public partial class MainWindow : Window
     private void InitializeStorageState()
     {
         StorageDirectoryTextBox.Text = Path.Combine(Environment.CurrentDirectory, "data");
-        StorageTaskNameTextBox.Text = "模拟采集";
-        StorageOperatorTextBox.Text = Environment.UserName;
-        StorageBatchNoTextBox.Text = DateTime.Now.ToString("yyyyMMdd", CultureInfo.InvariantCulture);
-        StorageSegmentSecondsTextBox.Text = "30";
-        AutoStartStorageCheckBox.IsChecked = true;
-        StorageFormatText.Text = "TDMS / Float32 / 原始流";
-        StorageStatusText.Text = "未开始存储";
-        StorageSessionIdText.Text = "--";
-        StorageSessionPathText.Text = "--";
-        StorageManifestPathText.Text = "--";
-        StorageCurrentSegmentText.Text = "--";
+        StorageCustomFileNameTextBox.Text = "数据采集";
+        AutoStartStorageCheckBox.IsChecked = false;
+        StorageStatusText.Text = "待机";
         StorageStartButton.IsEnabled = false;
         StorageStopButton.IsEnabled = false;
-    }
-
-    private void OnDataSourceModeChanged(object? sender, RoutedEventArgs e)
-    {
-        UpdateModeState();
-    }
-
-    private void UpdateModeState()
-    {
-        _useNativeMode = NativeModeRadio.IsChecked == true;
-        NativeConfigPanel.IsVisible = _useNativeMode;
-        MockConfigPanel.IsVisible = !_useNativeMode;
-        InitializeSdkButton.Content = _useNativeMode ? "初始化 SDK" : "构建拓扑";
-        StartValidationBtn.Content = _useNativeMode ? "启动采样" : "启动模拟";
-        TopologyStatusText.Text = _useNativeMode
-            ? "请选择配置目录后再初始化 SDK。"
-            : "请设置模拟设备数和通道数后构建拓扑。";
+        UpdateStorageNamingModeState();
     }
 
     private async void OnBrowseConfigDirectoryClick(object? sender, RoutedEventArgs e)
@@ -231,20 +200,12 @@ public partial class MainWindow : Window
         try
         {
             ClearTopology();
-
-            if (_useNativeMode)
-            {
-                InitializeNativeTopology();
-            }
-            else
-            {
-                InitializeMockTopology();
-            }
+            InitializeNativeTopology();
 
             _sdkInitialized = _channelsByCompositeId.Count > 0;
             StartValidationBtn.IsEnabled = _sdkInitialized;
             StopValidationBtn.IsEnabled = false;
-            StateBadgeText.Text = _sdkInitialized ? "灏辩华" : "寰呮満";
+            StateBadgeText.Text = _sdkInitialized ? "就绪" : "待机";
 
             UpdateTopologySummary();
             UpdateStorageButtons();
@@ -295,30 +256,6 @@ public partial class MainWindow : Window
         AppendLog(TopologyStatusText.Text);
     }
 
-    private void InitializeMockTopology()
-    {
-        var deviceCount = ParsePositiveInt(MockDeviceCountTextBox.Text, 1, 1, 64);
-        var channelCount = ParsePositiveInt(MockChannelCountTextBox.Text, 16, 1, 256);
-
-        BuildMockTopology(deviceCount, channelCount);
-        _detectedSampleRateHz = 5000d;
-        UpdateWaveBufferCapacity();
-
-        TopologyStatusText.Text = $"已构建 {deviceCount} 台模拟设备，共 {_channelsByCompositeId.Count} 个通道。";
-        SdkStatusText.Text = "模拟拓扑已就绪";
-        AppendLog(TopologyStatusText.Text);
-    }
-
-    private static int ParsePositiveInt(string? text, int fallback, int min, int max)
-    {
-        if (!int.TryParse(text, out var parsed))
-        {
-            return fallback;
-        }
-
-        return Math.Clamp(parsed, min, max);
-    }
-
     private void UpdateWaveBufferCapacity()
     {
         var desired = (int)Math.Ceiling(_detectedSampleRateHz * MaxWaveWindowSeconds * 1.1d);
@@ -335,14 +272,22 @@ public partial class MainWindow : Window
         return _storageOrchestrator is not null;
     }
 
-    private static int ParseSegmentSeconds(string? text)
+    private void OnStorageFileNameModeChanged(object? sender, RoutedEventArgs e)
     {
-        if (!int.TryParse(text, out var seconds))
-        {
-            return 30;
-        }
+        UpdateStorageNamingModeState();
+    }
 
-        return Math.Clamp(seconds, 1, 3600);
+    private void UpdateStorageNamingModeState()
+    {
+        var useCustomFileName = CustomFileNameRadio.IsChecked == true;
+        StorageCustomFileNameTextBox.IsEnabled = useCustomFileName;
+    }
+
+    private StorageFileNameMode ResolveStorageFileNameMode()
+    {
+        return CustomFileNameRadio.IsChecked == true
+            ? StorageFileNameMode.Custom
+            : StorageFileNameMode.StorageTime;
     }
 
     private string ResolveStorageDirectory()
@@ -388,21 +333,28 @@ public partial class MainWindow : Window
 
     private SessionContext BuildStorageSession(IReadOnlyList<ChannelItem> enabledChannels)
     {
-        var taskName = (StorageTaskNameTextBox.Text ?? string.Empty).Trim();
-        if (string.IsNullOrWhiteSpace(taskName))
+        var customFileName = (StorageCustomFileNameTextBox.Text ?? string.Empty).Trim();
+        if (ResolveStorageFileNameMode() == StorageFileNameMode.Custom && string.IsNullOrWhiteSpace(customFileName))
         {
-            taskName = "模拟采集";
-            StorageTaskNameTextBox.Text = taskName;
+            customFileName = "数据采集";
+            StorageCustomFileNameTextBox.Text = customFileName;
         }
+
+        var taskName = ResolveStorageFileNameMode() == StorageFileNameMode.Custom && !string.IsNullOrWhiteSpace(customFileName)
+            ? customFileName
+            : "数据采集";
 
         return new SessionContext
         {
             SessionId = Guid.NewGuid(),
             TaskName = taskName,
-            OperatorName = (StorageOperatorTextBox.Text ?? string.Empty).Trim(),
-            BatchNo = (StorageBatchNoTextBox.Text ?? string.Empty).Trim(),
+            OperatorName = string.Empty,
+            BatchNo = string.Empty,
             StartTime = DateTimeOffset.UtcNow,
             StorageFormat = StorageFormat.Tdms,
+            FileNameMode = ResolveStorageFileNameMode(),
+            CustomFileName = customFileName,
+            StorageTimeFormat = "yyyyMMdd_HHmmss",
             WriteRaw = true,
             WriteProcessed = false,
             Sources = BuildStorageSourceDescriptors(enabledChannels)
@@ -425,7 +377,7 @@ public partial class MainWindow : Window
         var session = BuildStorageSession(enabledChannels);
         var namingPolicy = new NamingTemplateFileNamingPolicy(storageDirectory, session.FileNamingTemplate);
         var writer = new TdmsWriter(namingPolicy);
-        var orchestrator = new StorageOrchestrator(writer, null, new SegmentPolicy(ParseSegmentSeconds(StorageSegmentSecondsTextBox.Text)));
+        var orchestrator = new StorageOrchestrator(writer, null, new SegmentPolicy());
 
         try
         {
@@ -438,22 +390,15 @@ public partial class MainWindow : Window
         }
 
         _storageOrchestrator = orchestrator;
-        _storageSession = session;
-        _storageManifestPath = string.Empty;
         _storageSegments.Clear();
         Interlocked.Exchange(ref _storageEnqueuedBlocks, 0);
         Interlocked.Exchange(ref _storageEnqueuedBytes, 0);
         Interlocked.Exchange(ref _storageEnqueueFailures, 0);
-        _storageBlocksBySource.Clear();
 
-        StorageStatusText.Text = "实时存储中";
-        StorageSessionIdText.Text = session.SessionId.ToString("N");
-        StorageSessionPathText.Text = namingPolicy.BuildSessionDirectory(session);
-        StorageManifestPathText.Text = "--";
-        StorageCurrentSegmentText.Text = "原始段 #0001";
+        StorageStatusText.Text = $"正在存储到 {storageDirectory}";
         UpdateStorageSummary();
         UpdateStorageButtons();
-        AppendLog($"已开始 TDMS 实时存储：{StorageSessionPathText.Text}");
+        AppendLog($"已开始 TDMS 实时存储，输出目录：{storageDirectory}");
     }
 
     private async Task StopStorageSessionAsync(CancellationToken cancellationToken = default)
@@ -465,9 +410,7 @@ public partial class MainWindow : Window
         }
 
         var orchestrator = _storageOrchestrator;
-        var session = _storageSession;
         _storageOrchestrator = null;
-        _storageSession = null;
 
         try
         {
@@ -479,24 +422,20 @@ public partial class MainWindow : Window
         }
 
         var segments = orchestrator.GetCompletedSegments();
-        var manifestPath = string.Empty;
-
-        if (session is not null)
-        {
-            manifestPath = WriteStorageManifest(session, segments);
-        }
-
-        StorageStatusText.Text = segments.Count > 0 ? "存储已完成" : "未写入任何 TDMS 段";
+        RefreshStorageSegments(segments);
+        StorageStatusText.Text = segments.Count > 0
+            ? $"已完成，生成 {segments.Count} 个 TDMS 文件。"
+            : "已完成，但未生成 TDMS 文件。";
         UpdateStorageSummary();
         UpdateStorageButtons();
 
         if (segments.Count > 0)
         {
-            AppendLog($"TDMS 存储已停止，共写入 {segments.Count} 个段。");
+            AppendLog($"TDMS 存储已停止，生成文件：{string.Join("；", segments.Select(static item => item.FilePath))}");
         }
         else
         {
-            AppendLog("TDMS 存储已停止，但没有生成段文件。");
+            AppendLog("TDMS 存储已停止，但没有生成文件。");
         }
     }
 
@@ -504,11 +443,11 @@ public partial class MainWindow : Window
     {
         _storageSegments.Clear();
 
-        foreach (var segment in segments.OrderBy(static item => item.SegmentNo))
+        foreach (var segment in segments.OrderBy(static item => item.FilePath, StringComparer.OrdinalIgnoreCase))
         {
             _storageSegments.Add(new StorageSegmentItem
             {
-                Title = $"{segment.ContainerFormat} / {ResolveStreamLabel(segment.StreamKind)} / 段 {segment.SegmentNo:D4}",
+                Title = Path.GetFileName(segment.FilePath),
                 Subtitle = $"块 {segment.BlockCount:N0} · 数据 {segment.PayloadBytes:N0} 字节 · 文件 {segment.FileBytes:N0} 字节",
                 Path = segment.FilePath
             });
@@ -525,11 +464,6 @@ public partial class MainWindow : Window
         StorageByteCountText.Text = $"{byteCount:N0} 字节";
         StorageSegmentCountText.Text = _storageSegments.Count.ToString(CultureInfo.InvariantCulture);
         StorageFailureCountText.Text = failureCount.ToString("N0", CultureInfo.InvariantCulture);
-
-        if (IsStorageRunning())
-        {
-            StorageCurrentSegmentText.Text = $"原始段 #{_storageSegments.Count + 1:D4}";
-        }
     }
 
     private void UpdateStorageButtons()
@@ -539,82 +473,6 @@ public partial class MainWindow : Window
 
         StorageStartButton.IsEnabled = acquisitionRunning && !storageRunning;
         StorageStopButton.IsEnabled = storageRunning;
-    }
-
-    private static string ResolveStreamLabel(StreamKind streamKind)
-    {
-        return streamKind switch
-        {
-            StreamKind.Raw => "原始",
-            StreamKind.Processed => "处理后",
-            StreamKind.Event => "事件",
-            StreamKind.State => "状态",
-            _ => streamKind.ToString()
-        };
-    }
-
-    private string WriteStorageManifest(SessionContext session, IReadOnlyList<WrittenSegmentInfo> segments)
-    {
-        try
-        {
-            var sessionDirectory = StorageSessionPathText.Text ?? string.Empty;
-            if (string.IsNullOrWhiteSpace(sessionDirectory))
-            {
-                return string.Empty;
-            }
-
-            Directory.CreateDirectory(sessionDirectory);
-
-            var manifest = new SessionManifestDto(
-                session.SessionId,
-                session.TaskName,
-                session.OperatorName,
-                session.BatchNo,
-                session.StartTime,
-                DateTimeOffset.UtcNow,
-                session.StorageFormat.ToString(),
-                session.WriteRaw,
-                session.WriteProcessed,
-                session.Sources
-                    .Select(static source => new SessionManifestSourceDto(
-                        source.SourceId,
-                        source.DeviceName,
-                        source.ChannelCount,
-                        source.SampleRateHz,
-                        source.SampleType.ToString()))
-                    .ToArray(),
-                segments
-                    .Select(segment => new SessionSegmentDto(
-                        segment.ContainerFormat,
-                        segment.StreamKind.ToString(),
-                        segment.SegmentNo,
-                        Path.GetRelativePath(sessionDirectory, segment.FilePath),
-                        segment.StartedAt,
-                        segment.EndedAt,
-                        segment.BlockCount,
-                        segment.PayloadBytes,
-                        segment.FileBytes))
-                    .ToArray(),
-                new SessionMetricsDto(
-                    Interlocked.Read(ref _storageEnqueuedBlocks),
-                    Interlocked.Read(ref _storageEnqueuedBytes),
-                    Interlocked.Read(ref _storageEnqueueFailures),
-                    0,
-                    _storageBlocksBySource.ToDictionary(static pair => pair.Key, static pair => pair.Value)));
-
-            var manifestPath = Path.Combine(sessionDirectory, "session.manifest.json");
-            var json = System.Text.Json.JsonSerializer.Serialize(manifest, new System.Text.Json.JsonSerializerOptions
-            {
-                WriteIndented = true
-            });
-            File.WriteAllText(manifestPath, json);
-            return manifestPath;
-        }
-        catch (Exception ex)
-        {
-            AppendLog($"写入会话清单失败：{ex.Message}");
-            return string.Empty;
-        }
     }
 
     private void ApplyNativeTopology(DhSdkTopologySnapshot topology)
@@ -630,7 +488,7 @@ public partial class MainWindow : Window
 
                 foreach (var channel in device.Channels.OrderBy(static item => item.ChannelIndex))
                 {
-                    var uiChannel = new ChannelItem(device.MachineId, channel.ChannelIndex, channel.ChannelId, $"閫氶亾缂栧彿 {channel.ChannelId}")
+                    var uiChannel = new ChannelItem(device.MachineId, channel.ChannelIndex, channel.ChannelId, $"通道编号 {channel.ChannelId}")
                     {
                         IsEnabled = true,
                         IsOnline = channel.Online
@@ -643,41 +501,6 @@ public partial class MainWindow : Window
                 uiDevice.NotifyChannelSummaryChanged();
                 _devices.Add(uiDevice);
                 _devicesByMachineId[uiDevice.MachineId] = uiDevice;
-            }
-        }
-
-        if (_devices.Count > 0)
-        {
-            SelectDevice(_devices[0].MachineId);
-        }
-    }
-
-    private void BuildMockTopology(int deviceCount, int channelsPerDevice)
-    {
-        lock (_topologyLock)
-        {
-            for (var machineId = 1; machineId <= deviceCount; machineId++)
-            {
-                var device = new DeviceItem(machineId, "127.0.0.1")
-                {
-                    IsOnline = true
-                };
-
-                for (var channelNo = 1; channelNo <= channelsPerDevice; channelNo++)
-                {
-                    var channel = new ChannelItem(machineId, channelNo, channelNo, "妯℃嫙閫氶亾")
-                    {
-                        IsEnabled = true,
-                        IsOnline = true
-                    };
-
-                    device.Channels.Add(channel);
-                    _channelsByCompositeId[channel.CompositeId] = channel;
-                }
-
-                device.NotifyChannelSummaryChanged();
-                _devices.Add(device);
-                _devicesByMachineId[machineId] = device;
             }
         }
 
@@ -845,21 +668,14 @@ public partial class MainWindow : Window
             var descriptor = new SourceDescriptor
             {
                 SourceId = enabledChannels[0].MachineId,
-                DeviceName = _useNativeMode ? "DH SDK 数据源" : "模拟数据源",
+                DeviceName = "DH SDK 数据源",
                 ChannelCount = BuildExpectedChannelCount(enabledChannels),
                 SampleRateHz = _detectedSampleRateHz,
                 SampleType = SampleType.Float32
             };
 
             var blockPool = new BlockPool();
-            IReadOnlyList<IDescriptorAcquisitionSource> sources = _useNativeMode
-                ? [CreateNativeValidationSource(descriptor, blockPool)]
-                : CreateMockValidationSources(enabledChannels, blockPool);
-
-            if (ShouldAutoStartStorage())
-            {
-                await StartStorageSessionAsync(enabledChannels);
-            }
+            IReadOnlyList<IDescriptorAcquisitionSource> sources = [CreateNativeValidationSource(descriptor, blockPool)];
 
             foreach (var source in sources)
             {
@@ -872,7 +688,21 @@ public partial class MainWindow : Window
             StartValidationBtn.IsEnabled = false;
             StopValidationBtn.IsEnabled = true;
             StateBadgeText.Text = "运行中";
-            SdkStatusText.Text = _useNativeMode ? "SDK 采样中" : "模拟采样中";
+            SdkStatusText.Text = "SDK 采样中";
+
+            if (ShouldAutoStartStorage())
+            {
+                try
+                {
+                    await StartStorageSessionAsync(enabledChannels);
+                }
+                catch (Exception ex)
+                {
+                    StorageStatusText.Text = "待机";
+                    UpdateStorageButtons();
+                    AppendLog($"自动存储未启动：{ex.Message}");
+                }
+            }
 
             UpdateTopologySummary();
             UpdateStorageButtons();
@@ -884,7 +714,8 @@ public partial class MainWindow : Window
         {
             CleanupValidationSource();
             UpdateStorageButtons();
-            SdkStatusText.Text = "鍚姩澶辫触";
+            StateBadgeText.Text = _sdkInitialized ? "就绪" : "待机";
+            SdkStatusText.Text = "启动失败";
             AppendLog($"启动采样失败：{ex.Message}");
         }
     }
@@ -904,16 +735,6 @@ public partial class MainWindow : Window
             });
     }
 
-    private static IDescriptorAcquisitionSource CreateMockValidationSource(SourceDescriptor descriptor, BlockPool blockPool)
-    {
-        return new DemoCallbackAcquisitionSource(
-            descriptor,
-            blockPool,
-            new MockSdkBridge(),
-            128,
-            TimeSpan.FromMilliseconds(10));
-    }
-
     private int BuildExpectedChannelCount(IReadOnlyList<ChannelItem> enabledChannels)
     {
         return enabledChannels
@@ -929,37 +750,6 @@ public partial class MainWindow : Window
             })
             .DefaultIfEmpty(1)
             .Max();
-    }
-
-    private IReadOnlyList<IDescriptorAcquisitionSource> CreateMockValidationSources(
-        IReadOnlyList<ChannelItem> enabledChannels,
-        BlockPool blockPool)
-    {
-        var sources = new List<IDescriptorAcquisitionSource>();
-        var machineIds = enabledChannels
-            .Select(static channel => channel.MachineId)
-            .Distinct()
-            .OrderBy(static machineId => machineId);
-
-        foreach (var machineId in machineIds)
-        {
-            var channelCount = _devicesByMachineId.TryGetValue(machineId, out var device)
-                ? Math.Max(1, device.Channels.Count)
-                : Math.Max(1, enabledChannels.Count(channel => channel.MachineId == machineId));
-
-            var descriptor = new SourceDescriptor
-            {
-                SourceId = machineId,
-                DeviceName = $"模拟数据源 AI{machineId}",
-                ChannelCount = channelCount,
-                SampleRateHz = _detectedSampleRateHz,
-                SampleType = SampleType.Float32
-            };
-
-            sources.Add(CreateMockValidationSource(descriptor, blockPool));
-        }
-
-        return sources;
     }
 
     private async void OnStopSdkValidationClick(object? sender, RoutedEventArgs e)
@@ -987,7 +777,6 @@ public partial class MainWindow : Window
                 {
                     Interlocked.Increment(ref _storageEnqueuedBlocks);
                     Interlocked.Add(ref _storageEnqueuedBytes, block.PayloadLength);
-                    _storageBlocksBySource.AddOrUpdate(block.Header.SourceId, 1, static (_, current) => current + 1);
                 }
                 else
                 {
@@ -1167,7 +956,7 @@ public partial class MainWindow : Window
     private void ApplyCallbackUpdate(CallbackUiUpdate update)
     {
         CallbackBlocksText.Text = update.CallbackCount.ToString("N0", CultureInfo.InvariantCulture);
-        CallbackBytesText.Text = $"{update.TotalBytes:N0} 瀛楄妭";
+        CallbackBytesText.Text = $"{update.TotalBytes:N0} 字节";
         LastCallbackText.Text = DateTimeOffset.FromUnixTimeMilliseconds(update.LastCallbackUnixMs).ToLocalTime().ToString("HH:mm:ss.fff", CultureInfo.InvariantCulture);
         UpdateStorageSummary();
 
@@ -1259,7 +1048,7 @@ public partial class MainWindow : Window
     private void InitializeCounters()
     {
         CallbackBlocksText.Text = "0";
-        CallbackBytesText.Text = "0 瀛楄妭";
+        CallbackBytesText.Text = "0 字节";
         LastCallbackText.Text = "--";
     }
 
@@ -1279,14 +1068,14 @@ public partial class MainWindow : Window
         foreach (var source in _validationSources.ToArray())
         {
             try
-        {
-            source.BlockArrived -= OnValidationBlockArrived;
-            source.Stop();
-            source.Dispose();
-        }
+            {
+                source.BlockArrived -= OnValidationBlockArrived;
+                source.Stop();
+                source.Dispose();
+            }
             catch (Exception ex)
-        {
-            AppendLog($"鍋滄閲囨牱鏃跺彂鐢熼敊璇細{ex.Message}");
+            {
+                AppendLog($"停止采样时发生错误：{ex.Message}");
             }
         }
 

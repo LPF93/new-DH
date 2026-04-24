@@ -1,5 +1,0 @@
-D:\desktop\DH\temp-build\replay-obj-3\Debug\net8.0\AcqEngine.Replay.csproj.AssemblyReference.cache
-D:\desktop\DH\temp-build\replay-obj-3\Debug\net8.0\AcqEngine.Replay.GeneratedMSBuildEditorConfig.editorconfig
-D:\desktop\DH\temp-build\replay-obj-3\Debug\net8.0\AcqEngine.Replay.AssemblyInfoInputs.cache
-D:\desktop\DH\temp-build\replay-obj-3\Debug\net8.0\AcqEngine.Replay.AssemblyInfo.cs
-D:\desktop\DH\temp-build\replay-obj-3\Debug\net8.0\AcqEngine.Replay.csproj.CoreCompileInputs.cache

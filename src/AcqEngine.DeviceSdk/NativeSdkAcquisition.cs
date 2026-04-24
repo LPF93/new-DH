@@ -635,7 +635,7 @@ internal static class DhSdkConfigDiagnostics
         if (interfaceType == "8" && ipAddresses.Any(IsLanAddress))
         {
             builder.Append(
-                "检测到 InterfaceType=8(4G)，但 DeviceInfo.ini 使用了 192.168.* / 10.* 这类网口地址；如果当前跑的是千兆网或模拟网口设备，建议先改成 7(千兆网) 后重试。");
+                "检测到 InterfaceType=8(4G)，但 DeviceInfo.ini 使用了 192.168.* / 10.* 这类网口地址；如果当前设备走的是千兆网等以太网链路，建议先改成 7(千兆网) 后重试。");
         }
 
         return builder.ToString().Trim();

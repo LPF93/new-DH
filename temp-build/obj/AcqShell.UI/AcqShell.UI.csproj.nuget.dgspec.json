@@ -1,24 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "D:\\desktop\\DH\\src\\AcqShell.UI\\AcqShell.UI.csproj": {}
+    "C:\\GIt\\new-DH\\src\\AcqShell.UI\\AcqShell.UI.csproj": {}
   },
   "projects": {
-    "D:\\desktop\\DH\\src\\AcqEngine.Core\\AcqEngine.Core.csproj": {
+    "C:\\GIt\\new-DH\\src\\AcqEngine.Core\\AcqEngine.Core.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\desktop\\DH\\src\\AcqEngine.Core\\AcqEngine.Core.csproj",
+        "projectUniqueName": "C:\\GIt\\new-DH\\src\\AcqEngine.Core\\AcqEngine.Core.csproj",
         "projectName": "AcqEngine.Core",
-        "projectPath": "D:\\desktop\\DH\\src\\AcqEngine.Core\\AcqEngine.Core.csproj",
-        "packagesPath": "C:\\Users\\27249\\.nuget\\packages\\",
-        "outputPath": "D:\\desktop\\DH\\temp-build\\obj\\AcqEngine.Core\\",
+        "projectPath": "C:\\GIt\\new-DH\\src\\AcqEngine.Core\\AcqEngine.Core.csproj",
+        "packagesPath": "C:\\Users\\26453\\.nuget\\packages\\",
+        "outputPath": "C:\\GIt\\new-DH\\temp-build\\obj\\AcqEngine.Core\\",
         "projectStyle": "PackageReference",
-        "fallbackFolders": [
-          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
-        ],
         "configFilePaths": [
-          "C:\\Users\\27249\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Users\\26453\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -65,25 +61,21 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.304/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.310/PortableRuntimeIdentifierGraph.json"
         }
       }
     },
-    "D:\\desktop\\DH\\src\\AcqEngine.DeviceSdk\\AcqEngine.DeviceSdk.csproj": {
+    "C:\\GIt\\new-DH\\src\\AcqEngine.DeviceSdk\\AcqEngine.DeviceSdk.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\desktop\\DH\\src\\AcqEngine.DeviceSdk\\AcqEngine.DeviceSdk.csproj",
+        "projectUniqueName": "C:\\GIt\\new-DH\\src\\AcqEngine.DeviceSdk\\AcqEngine.DeviceSdk.csproj",
         "projectName": "AcqEngine.DeviceSdk",
-        "projectPath": "D:\\desktop\\DH\\src\\AcqEngine.DeviceSdk\\AcqEngine.DeviceSdk.csproj",
-        "packagesPath": "C:\\Users\\27249\\.nuget\\packages\\",
-        "outputPath": "D:\\desktop\\DH\\temp-build\\obj\\AcqEngine.DeviceSdk\\",
+        "projectPath": "C:\\GIt\\new-DH\\src\\AcqEngine.DeviceSdk\\AcqEngine.DeviceSdk.csproj",
+        "packagesPath": "C:\\Users\\26453\\.nuget\\packages\\",
+        "outputPath": "C:\\GIt\\new-DH\\temp-build\\obj\\AcqEngine.DeviceSdk\\",
         "projectStyle": "PackageReference",
-        "fallbackFolders": [
-          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
-        ],
         "configFilePaths": [
-          "C:\\Users\\27249\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Users\\26453\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -97,8 +89,8 @@
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "D:\\desktop\\DH\\src\\AcqEngine.Core\\AcqEngine.Core.csproj": {
-                "projectPath": "D:\\desktop\\DH\\src\\AcqEngine.Core\\AcqEngine.Core.csproj"
+              "C:\\GIt\\new-DH\\src\\AcqEngine.Core\\AcqEngine.Core.csproj": {
+                "projectPath": "C:\\GIt\\new-DH\\src\\AcqEngine.Core\\AcqEngine.Core.csproj"
               }
             }
           }
@@ -134,25 +126,21 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.304/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.310/PortableRuntimeIdentifierGraph.json"
         }
       }
     },
-    "D:\\desktop\\DH\\src\\AcqEngine.Storage.Abstractions\\AcqEngine.Storage.Abstractions.csproj": {
+    "C:\\GIt\\new-DH\\src\\AcqEngine.Storage.Abstractions\\AcqEngine.Storage.Abstractions.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\desktop\\DH\\src\\AcqEngine.Storage.Abstractions\\AcqEngine.Storage.Abstractions.csproj",
+        "projectUniqueName": "C:\\GIt\\new-DH\\src\\AcqEngine.Storage.Abstractions\\AcqEngine.Storage.Abstractions.csproj",
         "projectName": "AcqEngine.Storage.Abstractions",
-        "projectPath": "D:\\desktop\\DH\\src\\AcqEngine.Storage.Abstractions\\AcqEngine.Storage.Abstractions.csproj",
-        "packagesPath": "C:\\Users\\27249\\.nuget\\packages\\",
-        "outputPath": "D:\\desktop\\DH\\temp-build\\obj\\AcqEngine.Storage.Abstractions\\",
+        "projectPath": "C:\\GIt\\new-DH\\src\\AcqEngine.Storage.Abstractions\\AcqEngine.Storage.Abstractions.csproj",
+        "packagesPath": "C:\\Users\\26453\\.nuget\\packages\\",
+        "outputPath": "C:\\GIt\\new-DH\\temp-build\\obj\\AcqEngine.Storage.Abstractions\\",
         "projectStyle": "PackageReference",
-        "fallbackFolders": [
-          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
-        ],
         "configFilePaths": [
-          "C:\\Users\\27249\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Users\\26453\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -166,8 +154,8 @@
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "D:\\desktop\\DH\\src\\AcqEngine.Core\\AcqEngine.Core.csproj": {
-                "projectPath": "D:\\desktop\\DH\\src\\AcqEngine.Core\\AcqEngine.Core.csproj"
+              "C:\\GIt\\new-DH\\src\\AcqEngine.Core\\AcqEngine.Core.csproj": {
+                "projectPath": "C:\\GIt\\new-DH\\src\\AcqEngine.Core\\AcqEngine.Core.csproj"
               }
             }
           }
@@ -203,25 +191,21 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.304/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.310/PortableRuntimeIdentifierGraph.json"
         }
       }
     },
-    "D:\\desktop\\DH\\src\\AcqEngine.Storage.Tdms\\AcqEngine.Storage.Tdms.csproj": {
+    "C:\\GIt\\new-DH\\src\\AcqEngine.Storage.Tdms\\AcqEngine.Storage.Tdms.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\desktop\\DH\\src\\AcqEngine.Storage.Tdms\\AcqEngine.Storage.Tdms.csproj",
+        "projectUniqueName": "C:\\GIt\\new-DH\\src\\AcqEngine.Storage.Tdms\\AcqEngine.Storage.Tdms.csproj",
         "projectName": "AcqEngine.Storage.Tdms",
-        "projectPath": "D:\\desktop\\DH\\src\\AcqEngine.Storage.Tdms\\AcqEngine.Storage.Tdms.csproj",
-        "packagesPath": "C:\\Users\\27249\\.nuget\\packages\\",
-        "outputPath": "D:\\desktop\\DH\\temp-build\\obj\\AcqEngine.Storage.Tdms\\",
+        "projectPath": "C:\\GIt\\new-DH\\src\\AcqEngine.Storage.Tdms\\AcqEngine.Storage.Tdms.csproj",
+        "packagesPath": "C:\\Users\\26453\\.nuget\\packages\\",
+        "outputPath": "C:\\GIt\\new-DH\\temp-build\\obj\\AcqEngine.Storage.Tdms\\",
         "projectStyle": "PackageReference",
-        "fallbackFolders": [
-          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
-        ],
         "configFilePaths": [
-          "C:\\Users\\27249\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Users\\26453\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -235,11 +219,11 @@
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "D:\\desktop\\DH\\src\\AcqEngine.Core\\AcqEngine.Core.csproj": {
-                "projectPath": "D:\\desktop\\DH\\src\\AcqEngine.Core\\AcqEngine.Core.csproj"
+              "C:\\GIt\\new-DH\\src\\AcqEngine.Core\\AcqEngine.Core.csproj": {
+                "projectPath": "C:\\GIt\\new-DH\\src\\AcqEngine.Core\\AcqEngine.Core.csproj"
               },
-              "D:\\desktop\\DH\\src\\AcqEngine.Storage.Abstractions\\AcqEngine.Storage.Abstractions.csproj": {
-                "projectPath": "D:\\desktop\\DH\\src\\AcqEngine.Storage.Abstractions\\AcqEngine.Storage.Abstractions.csproj"
+              "C:\\GIt\\new-DH\\src\\AcqEngine.Storage.Abstractions\\AcqEngine.Storage.Abstractions.csproj": {
+                "projectPath": "C:\\GIt\\new-DH\\src\\AcqEngine.Storage.Abstractions\\AcqEngine.Storage.Abstractions.csproj"
               }
             }
           }
@@ -275,25 +259,21 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.304/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.310/PortableRuntimeIdentifierGraph.json"
         }
       }
     },
-    "D:\\desktop\\DH\\src\\AcqShell.Contracts\\AcqShell.Contracts.csproj": {
+    "C:\\GIt\\new-DH\\src\\AcqShell.Contracts\\AcqShell.Contracts.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\desktop\\DH\\src\\AcqShell.Contracts\\AcqShell.Contracts.csproj",
+        "projectUniqueName": "C:\\GIt\\new-DH\\src\\AcqShell.Contracts\\AcqShell.Contracts.csproj",
         "projectName": "AcqShell.Contracts",
-        "projectPath": "D:\\desktop\\DH\\src\\AcqShell.Contracts\\AcqShell.Contracts.csproj",
-        "packagesPath": "C:\\Users\\27249\\.nuget\\packages\\",
-        "outputPath": "D:\\desktop\\DH\\temp-build\\obj\\AcqShell.Contracts\\",
+        "projectPath": "C:\\GIt\\new-DH\\src\\AcqShell.Contracts\\AcqShell.Contracts.csproj",
+        "packagesPath": "C:\\Users\\26453\\.nuget\\packages\\",
+        "outputPath": "C:\\GIt\\new-DH\\temp-build\\obj\\AcqShell.Contracts\\",
         "projectStyle": "PackageReference",
-        "fallbackFolders": [
-          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
-        ],
         "configFilePaths": [
-          "C:\\Users\\27249\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Users\\26453\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -340,25 +320,21 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.304/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.310/PortableRuntimeIdentifierGraph.json"
         }
       }
     },
-    "D:\\desktop\\DH\\src\\AcqShell.UI\\AcqShell.UI.csproj": {
+    "C:\\GIt\\new-DH\\src\\AcqShell.UI\\AcqShell.UI.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\desktop\\DH\\src\\AcqShell.UI\\AcqShell.UI.csproj",
+        "projectUniqueName": "C:\\GIt\\new-DH\\src\\AcqShell.UI\\AcqShell.UI.csproj",
         "projectName": "AcqShell.UI",
-        "projectPath": "D:\\desktop\\DH\\src\\AcqShell.UI\\AcqShell.UI.csproj",
-        "packagesPath": "C:\\Users\\27249\\.nuget\\packages\\",
-        "outputPath": "D:\\desktop\\DH\\temp-build\\obj\\AcqShell.UI\\",
+        "projectPath": "C:\\GIt\\new-DH\\src\\AcqShell.UI\\AcqShell.UI.csproj",
+        "packagesPath": "C:\\Users\\26453\\.nuget\\packages\\",
+        "outputPath": "C:\\GIt\\new-DH\\temp-build\\obj\\AcqShell.UI\\",
         "projectStyle": "PackageReference",
-        "fallbackFolders": [
-          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
-        ],
         "configFilePaths": [
-          "C:\\Users\\27249\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Users\\26453\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -372,20 +348,20 @@
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "D:\\desktop\\DH\\src\\AcqEngine.Core\\AcqEngine.Core.csproj": {
-                "projectPath": "D:\\desktop\\DH\\src\\AcqEngine.Core\\AcqEngine.Core.csproj"
+              "C:\\GIt\\new-DH\\src\\AcqEngine.Core\\AcqEngine.Core.csproj": {
+                "projectPath": "C:\\GIt\\new-DH\\src\\AcqEngine.Core\\AcqEngine.Core.csproj"
               },
-              "D:\\desktop\\DH\\src\\AcqEngine.DeviceSdk\\AcqEngine.DeviceSdk.csproj": {
-                "projectPath": "D:\\desktop\\DH\\src\\AcqEngine.DeviceSdk\\AcqEngine.DeviceSdk.csproj"
+              "C:\\GIt\\new-DH\\src\\AcqEngine.DeviceSdk\\AcqEngine.DeviceSdk.csproj": {
+                "projectPath": "C:\\GIt\\new-DH\\src\\AcqEngine.DeviceSdk\\AcqEngine.DeviceSdk.csproj"
               },
-              "D:\\desktop\\DH\\src\\AcqEngine.Storage.Abstractions\\AcqEngine.Storage.Abstractions.csproj": {
-                "projectPath": "D:\\desktop\\DH\\src\\AcqEngine.Storage.Abstractions\\AcqEngine.Storage.Abstractions.csproj"
+              "C:\\GIt\\new-DH\\src\\AcqEngine.Storage.Abstractions\\AcqEngine.Storage.Abstractions.csproj": {
+                "projectPath": "C:\\GIt\\new-DH\\src\\AcqEngine.Storage.Abstractions\\AcqEngine.Storage.Abstractions.csproj"
               },
-              "D:\\desktop\\DH\\src\\AcqEngine.Storage.Tdms\\AcqEngine.Storage.Tdms.csproj": {
-                "projectPath": "D:\\desktop\\DH\\src\\AcqEngine.Storage.Tdms\\AcqEngine.Storage.Tdms.csproj"
+              "C:\\GIt\\new-DH\\src\\AcqEngine.Storage.Tdms\\AcqEngine.Storage.Tdms.csproj": {
+                "projectPath": "C:\\GIt\\new-DH\\src\\AcqEngine.Storage.Tdms\\AcqEngine.Storage.Tdms.csproj"
               },
-              "D:\\desktop\\DH\\src\\AcqShell.Contracts\\AcqShell.Contracts.csproj": {
-                "projectPath": "D:\\desktop\\DH\\src\\AcqShell.Contracts\\AcqShell.Contracts.csproj"
+              "C:\\GIt\\new-DH\\src\\AcqShell.Contracts\\AcqShell.Contracts.csproj": {
+                "projectPath": "C:\\GIt\\new-DH\\src\\AcqShell.Contracts\\AcqShell.Contracts.csproj"
               }
             }
           }
@@ -435,7 +411,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.304/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.310/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

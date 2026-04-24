@@ -8,14 +8,14 @@
     ".NETCoreApp,Version=v8.0": {
       "AcqShell.UI/1.0.0": {
         "dependencies": {
+          "AcqEngine.Core": "1.0.0",
+          "AcqEngine.DeviceSdk": "1.0.0",
+          "AcqEngine.Storage.Abstractions": "1.0.0",
+          "AcqEngine.Storage.Tdms": "1.0.0",
+          "AcqShell.Contracts": "1.0.0",
           "Avalonia": "11.1.4",
           "Avalonia.Desktop": "11.1.4",
-          "Avalonia.Themes.Fluent": "11.1.4",
-          "AcqEngine.Core": "1.0.0.0",
-          "AcqEngine.DeviceSdk": "1.0.0.0",
-          "AcqEngine.Storage.Abstractions": "1.0.0.0",
-          "AcqEngine.Storage.Tdms": "1.0.0.0",
-          "AcqShell.Contracts": "1.0.0.0"
+          "Avalonia.Themes.Fluent": "11.1.4"
         },
         "runtime": {
           "AcqShell.UI.dll": {}
@@ -365,7 +365,7 @@
           }
         }
       },
-      "AcqEngine.Core/1.0.0.0": {
+      "AcqEngine.Core/1.0.0": {
         "runtime": {
           "AcqEngine.Core.dll": {
             "assemblyVersion": "1.0.0.0",
@@ -373,7 +373,10 @@
           }
         }
       },
-      "AcqEngine.DeviceSdk/1.0.0.0": {
+      "AcqEngine.DeviceSdk/1.0.0": {
+        "dependencies": {
+          "AcqEngine.Core": "1.0.0"
+        },
         "runtime": {
           "AcqEngine.DeviceSdk.dll": {
             "assemblyVersion": "1.0.0.0",
@@ -381,7 +384,10 @@
           }
         }
       },
-      "AcqEngine.Storage.Abstractions/1.0.0.0": {
+      "AcqEngine.Storage.Abstractions/1.0.0": {
+        "dependencies": {
+          "AcqEngine.Core": "1.0.0"
+        },
         "runtime": {
           "AcqEngine.Storage.Abstractions.dll": {
             "assemblyVersion": "1.0.0.0",
@@ -389,7 +395,11 @@
           }
         }
       },
-      "AcqEngine.Storage.Tdms/1.0.0.0": {
+      "AcqEngine.Storage.Tdms/1.0.0": {
+        "dependencies": {
+          "AcqEngine.Core": "1.0.0",
+          "AcqEngine.Storage.Abstractions": "1.0.0"
+        },
         "runtime": {
           "AcqEngine.Storage.Tdms.dll": {
             "assemblyVersion": "1.0.0.0",
@@ -397,7 +407,7 @@
           }
         }
       },
-      "AcqShell.Contracts/1.0.0.0": {
+      "AcqShell.Contracts/1.0.0": {
         "runtime": {
           "AcqShell.Contracts.dll": {
             "assemblyVersion": "1.0.0.0",
@@ -588,28 +598,28 @@
       "path": "tmds.dbus.protocol/0.16.0",
       "hashPath": "tmds.dbus.protocol.0.16.0.nupkg.sha512"
     },
-    "AcqEngine.Core/1.0.0.0": {
-      "type": "reference",
+    "AcqEngine.Core/1.0.0": {
+      "type": "project",
       "serviceable": false,
       "sha512": ""
     },
-    "AcqEngine.DeviceSdk/1.0.0.0": {
-      "type": "reference",
+    "AcqEngine.DeviceSdk/1.0.0": {
+      "type": "project",
       "serviceable": false,
       "sha512": ""
     },
-    "AcqEngine.Storage.Abstractions/1.0.0.0": {
-      "type": "reference",
+    "AcqEngine.Storage.Abstractions/1.0.0": {
+      "type": "project",
       "serviceable": false,
       "sha512": ""
     },
-    "AcqEngine.Storage.Tdms/1.0.0.0": {
-      "type": "reference",
+    "AcqEngine.Storage.Tdms/1.0.0": {
+      "type": "project",
       "serviceable": false,
       "sha512": ""
     },
-    "AcqShell.Contracts/1.0.0.0": {
-      "type": "reference",
+    "AcqShell.Contracts/1.0.0": {
+      "type": "project",
       "serviceable": false,
       "sha512": ""
     }

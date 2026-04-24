@@ -147,16 +147,13 @@ public sealed class StorageOrchestrator : IAsyncDisposable
 	{
 		private readonly IContainerWriter _writer;
 		private readonly StreamKind _streamKind;
-		private readonly SegmentPolicy _policy;
 		private int _segmentNo = 1;
-		private long _segmentBytes;
-		private DateTimeOffset _segmentStartedAt;
 
 		private StreamWorker(IContainerWriter writer, StreamKind streamKind, SegmentPolicy policy)
 		{
 			_writer = writer;
 			_streamKind = streamKind;
-			_policy = policy;
+			_ = policy;
 			Queue = Channel.CreateUnbounded<DataBlock>(new UnboundedChannelOptions
 			{
 				SingleReader = true,
@@ -178,7 +175,6 @@ public sealed class StorageOrchestrator : IAsyncDisposable
 			var worker = new StreamWorker(writer, streamKind, policy);
 			await writer.OpenSessionAsync(session, ct);
 			await writer.OpenSegmentAsync(streamKind, worker._segmentNo, ct);
-			worker._segmentStartedAt = DateTimeOffset.UtcNow;
 			worker.LoopTask = worker.RunLoopAsync();
 			return worker;
 		}
@@ -199,13 +195,7 @@ public sealed class StorageOrchestrator : IAsyncDisposable
 			{
 				try
 				{
-					if (ShouldRotateSegment(block.PayloadLength))
-					{
-						await RotateSegmentAsync();
-					}
-
 					await _writer.WriteBlockAsync(block, CancellationToken.None);
-					_segmentBytes += block.PayloadLength;
 				}
 				finally
 				{
@@ -216,25 +206,6 @@ public sealed class StorageOrchestrator : IAsyncDisposable
 			await _writer.FlushAsync(CancellationToken.None);
 			await _writer.CloseSegmentAsync(CancellationToken.None);
 			await _writer.CloseSessionAsync(CancellationToken.None);
-		}
-
-		private async Task RotateSegmentAsync()
-		{
-			await _writer.FlushAsync(CancellationToken.None);
-			await _writer.CloseSegmentAsync(CancellationToken.None);
-
-			_segmentNo++;
-			_segmentBytes = 0;
-			_segmentStartedAt = DateTimeOffset.UtcNow;
-
-			await _writer.OpenSegmentAsync(_streamKind, _segmentNo, CancellationToken.None);
-		}
-
-		private bool ShouldRotateSegment(int incomingBytes)
-		{
-			var byTime = DateTimeOffset.UtcNow - _segmentStartedAt >= _policy.SegmentDuration;
-			var bySize = _segmentBytes + incomingBytes >= _policy.SegmentMaxBytes;
-			return byTime || bySize;
 		}
 	}
 }
@@ -257,16 +228,30 @@ public sealed class NamingTemplateFileNamingPolicy : IFileNamingPolicy
 
 	public string BuildSessionDirectory(SessionContext session)
 	{
-		var dateFolder = session.StartTime.ToString("yyyyMMdd");
-		var taskFolder = SanitizePathSegment(session.TaskName);
-		var sessionFolder = session.SessionId.ToString("N");
-		return Path.Combine(_basePath, dateFolder, taskFolder, sessionFolder);
+		return _basePath;
 	}
 
 	public string BuildSegmentFileName(SessionContext session, StreamKind stream, int segmentNo)
 	{
-		var replaced = TokenRegex.Replace(_template, m => ResolveToken(m, session, stream, segmentNo));
-		return SanitizeFileName(replaced);
+		var fileName = session.FileNameMode switch
+		{
+			StorageFileNameMode.Custom => ResolveCustomFileName(session),
+			StorageFileNameMode.StorageTime => session.StartTime.ToLocalTime().ToString(
+				string.IsNullOrWhiteSpace(session.StorageTimeFormat) ? "yyyyMMdd_HHmmss" : session.StorageTimeFormat),
+			_ => TokenRegex.Replace(_template, m => ResolveToken(m, session, stream, segmentNo))
+		};
+
+		return SanitizeFileName(fileName);
+	}
+
+	private static string ResolveCustomFileName(SessionContext session)
+	{
+		if (!string.IsNullOrWhiteSpace(session.CustomFileName))
+		{
+			return session.CustomFileName;
+		}
+
+		return string.IsNullOrWhiteSpace(session.TaskName) ? "session" : session.TaskName;
 	}
 
 	private static string ResolveToken(Match match, SessionContext session, StreamKind stream, int segmentNo)
@@ -301,22 +286,16 @@ public sealed class NamingTemplateFileNamingPolicy : IFileNamingPolicy
 		};
 	}
 
-	private static string SanitizePathSegment(string value)
+	private static string SanitizeFileName(string value)
 	{
 		if (string.IsNullOrWhiteSpace(value))
 		{
-			return "任务";
+			return "session";
 		}
 
-		var invalid = Path.GetInvalidPathChars();
-		var chars = value.Select(c => invalid.Contains(c) ? '_' : c).ToArray();
-		return new string(chars);
-	}
-
-	private static string SanitizeFileName(string value)
-	{
 		var invalid = Path.GetInvalidFileNameChars();
 		var chars = value.Select(c => invalid.Contains(c) ? '_' : c).ToArray();
-		return new string(chars);
+		var sanitized = new string(chars).Trim().Trim('.');
+		return string.IsNullOrWhiteSpace(sanitized) ? "session" : sanitized;
 	}
 }

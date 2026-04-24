@@ -1,24 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "D:\\desktop\\DH\\src\\AcqShell.Contracts\\AcqShell.Contracts.csproj": {}
+    "C:\\GIt\\new-DH\\src\\AcqShell.Contracts\\AcqShell.Contracts.csproj": {}
   },
   "projects": {
-    "D:\\desktop\\DH\\src\\AcqShell.Contracts\\AcqShell.Contracts.csproj": {
+    "C:\\GIt\\new-DH\\src\\AcqShell.Contracts\\AcqShell.Contracts.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\desktop\\DH\\src\\AcqShell.Contracts\\AcqShell.Contracts.csproj",
+        "projectUniqueName": "C:\\GIt\\new-DH\\src\\AcqShell.Contracts\\AcqShell.Contracts.csproj",
         "projectName": "AcqShell.Contracts",
-        "projectPath": "D:\\desktop\\DH\\src\\AcqShell.Contracts\\AcqShell.Contracts.csproj",
-        "packagesPath": "C:\\Users\\27249\\.nuget\\packages\\",
-        "outputPath": "D:\\desktop\\DH\\temp-build\\obj\\AcqShell.Contracts\\",
+        "projectPath": "C:\\GIt\\new-DH\\src\\AcqShell.Contracts\\AcqShell.Contracts.csproj",
+        "packagesPath": "C:\\Users\\26453\\.nuget\\packages\\",
+        "outputPath": "C:\\GIt\\new-DH\\temp-build\\obj\\AcqShell.Contracts\\",
         "projectStyle": "PackageReference",
-        "fallbackFolders": [
-          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
-        ],
         "configFilePaths": [
-          "C:\\Users\\27249\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Users\\26453\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -65,7 +61,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.304/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.310/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

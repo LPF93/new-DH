@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("AcqEngine.Storage.Abstractions")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+4b464ed0a44913f799a9edafbbe73cc6312880aa")]
 [assembly: System.Reflection.AssemblyProductAttribute("AcqEngine.Storage.Abstractions")]
 [assembly: System.Reflection.AssemblyTitleAttribute("AcqEngine.Storage.Abstractions")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

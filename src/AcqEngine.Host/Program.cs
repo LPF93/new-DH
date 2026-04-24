@@ -6,7 +6,6 @@ using AcqEngine.Processing;
 using AcqEngine.Storage.Abstractions;
 using AcqEngine.Storage.Hdf5;
 using AcqEngine.Storage.Tdms;
-using AcqShell.Contracts;
 
 var options = EngineOptions.Load("appsettings.json");
 var cancellationTokenSource = new CancellationTokenSource();
@@ -23,8 +22,7 @@ var cache = new RecentDataCache(TimeSpan.FromSeconds(options.Ui.PreviewSeconds))
 var sessionManager = new SessionManager();
 
 var storageFormat = ParseStorageFormat(options.Storage.PrimaryFormat);
-var sampleType = ParseSampleType(options.Acquisition.SampleType);
-var sources = BuildSources(options, sampleType, blockPool).ToArray();
+var sources = BuildSources(options, blockPool).ToArray();
 if (sources.Length == 0)
 {
 	Console.WriteLine("未配置采集源，程序退出。");
@@ -120,71 +118,41 @@ catch (OperationCanceledException)
 }
 
 var stoppedSession = sessionManager.Stop();
-var snapshot = diagnostics.Snapshot();
-var manifestPath = WriteSessionManifest(
-	options.Storage.BasePath,
-	stoppedSession,
-	snapshot,
-	storage.GetCompletedSegments());
-
 Console.WriteLine($"会话已停止：{stoppedSession.SessionId}");
-Console.WriteLine($"清单文件已写入：{manifestPath}");
+var completedFiles = storage.GetCompletedSegments();
+if (completedFiles.Count > 0)
+{
+	Console.WriteLine($"输出文件：{string.Join("；", completedFiles.Select(static item => item.FilePath))}");
+}
+else
+{
+	Console.WriteLine("未生成输出文件。");
+}
 
 return;
 
-static IEnumerable<IDescriptorAcquisitionSource> BuildSources(EngineOptions options, SampleType sampleType, BlockPool blockPool)
+static IEnumerable<IDescriptorAcquisitionSource> BuildSources(EngineOptions options, BlockPool blockPool)
 {
-	if (IsNativeSdkMode(options.Sdk.Mode))
+	var descriptor = new SourceDescriptor
 	{
-		var descriptor = new SourceDescriptor
+		SourceId = 1,
+		DeviceName = "SDK回调采集源",
+		ChannelCount = Math.Max(1, options.Acquisition.DefaultChannelsPerSource),
+		SampleRateHz = Math.Max(1, options.Acquisition.SampleRateHz),
+		SampleType = SampleType.Float32
+	};
+
+	yield return new DhSdkAcquisitionSource(
+		descriptor,
+		blockPool,
+		new DhSdkOptions
 		{
-			SourceId = 1,
-			DeviceName = "SDK回调采集源",
-			ChannelCount = Math.Max(1, options.Acquisition.DefaultChannelsPerSource),
-			SampleRateHz = Math.Max(1, options.Acquisition.SampleRateHz),
-			SampleType = SampleType.Float32
-		};
-
-		yield return new DhSdkAcquisitionSource(
-			descriptor,
-			blockPool,
-			new DhSdkOptions
-			{
-				SdkDirectory = options.Sdk.SdkDirectory,
-				ConfigDirectory = options.Sdk.ConfigDirectory,
-				DataCountPerCallback = options.Sdk.DataCountPerCallback,
-				SingleMachineMode = options.Sdk.SingleMachineMode,
-				AutoConnectDevices = options.Sdk.AutoConnectDevices
-			});
-
-		yield break;
-	}
-
-	var sourceCount = Math.Max(1, options.Acquisition.ExpectedSources);
-	var channelsPerSource = Math.Max(1, options.Acquisition.DefaultChannelsPerSource);
-	var sampleRate = Math.Max(1, options.Acquisition.SampleRateHz);
-	var sdkBridge = new MockSdkBridge();
-
-	for (var i = 1; i <= sourceCount; i++)
-	{
-		var descriptor = new SourceDescriptor
-		{
-			SourceId = i,
-			DeviceName = $"采集源_{i:D4}",
-			ChannelCount = channelsPerSource,
-			SampleRateHz = sampleRate,
-			SampleType = sampleType
-		};
-
-		yield return new DemoCallbackAcquisitionSource(descriptor, blockPool, sdkBridge);
-	}
-}
-
-static bool IsNativeSdkMode(string mode)
-{
-	return mode.Equals("SDK", StringComparison.OrdinalIgnoreCase)
-		|| mode.Equals("Native", StringComparison.OrdinalIgnoreCase)
-		|| mode.Contains("真实", StringComparison.OrdinalIgnoreCase);
+			SdkDirectory = options.Sdk.SdkDirectory,
+			ConfigDirectory = options.Sdk.ConfigDirectory,
+			DataCountPerCallback = options.Sdk.DataCountPerCallback,
+			SingleMachineMode = options.Sdk.SingleMachineMode,
+			AutoConnectDevices = options.Sdk.AutoConnectDevices
+		});
 }
 
 static StorageFormat ParseStorageFormat(string value)
@@ -197,22 +165,6 @@ static StorageFormat ParseStorageFormat(string value)
 	}
 
 	return StorageFormat.Tdms;
-}
-
-static SampleType ParseSampleType(string value)
-{
-	return value.ToUpperInvariant() switch
-	{
-		"INT16" => SampleType.Int16,
-		"整型16" => SampleType.Int16,
-		"INT32" => SampleType.Int32,
-		"整型32" => SampleType.Int32,
-		"FLOAT32" => SampleType.Float32,
-		"单精度" => SampleType.Float32,
-		"FLOAT64" => SampleType.Float64,
-		"双精度" => SampleType.Float64,
-		_ => SampleType.Int16
-	};
 }
 
 static IContainerWriter CreateWriter(StorageFormat storageFormat, IFileNamingPolicy namingPolicy)
@@ -269,71 +221,6 @@ static async Task MonitorLoopAsync(
 	}
 }
 
-static string WriteSessionManifest(
-	string basePath,
-	SessionContext session,
-	DiagnosticsSnapshot snapshot,
-	IReadOnlyList<WrittenSegmentInfo> segments)
-{
-	var sanitizedTaskName = SanitizePathSegment(session.TaskName);
-	var sessionDir = Path.Combine(basePath, session.StartTime.ToString("yyyyMMdd"), sanitizedTaskName, session.SessionId.ToString("N"));
-	Directory.CreateDirectory(sessionDir);
-
-	var manifest = new SessionManifestDto(
-		session.SessionId,
-		session.TaskName,
-		session.OperatorName,
-		session.BatchNo,
-		session.StartTime,
-		session.EndTime,
-		session.StorageFormat.ToString(),
-		session.WriteRaw,
-		session.WriteProcessed,
-		session.Sources
-			.Select(static source => new SessionManifestSourceDto(
-				source.SourceId,
-				source.DeviceName,
-				source.ChannelCount,
-				source.SampleRateHz,
-				source.SampleType.ToString()))
-			.ToArray(),
-		segments
-			.Select(segment => new SessionSegmentDto(
-				segment.ContainerFormat,
-				segment.StreamKind.ToString(),
-				segment.SegmentNo,
-				Path.GetRelativePath(sessionDir, segment.FilePath),
-				segment.StartedAt,
-				segment.EndedAt,
-				segment.BlockCount,
-				segment.PayloadBytes,
-				segment.FileBytes))
-			.ToArray(),
-		new SessionMetricsDto(
-			snapshot.TotalBlocks,
-			snapshot.TotalBytes,
-			snapshot.RawEnqueueFailures,
-			snapshot.ProcessEnqueueFailures,
-			new Dictionary<int, long>(snapshot.BlocksBySource)));
-
-	var path = Path.Combine(sessionDir, "session.manifest.json");
-	var json = JsonSerializer.Serialize(manifest, new JsonSerializerOptions { WriteIndented = true });
-	File.WriteAllText(path, json);
-	return path;
-}
-
-static string SanitizePathSegment(string value)
-{
-	if (string.IsNullOrWhiteSpace(value))
-	{
-		return "任务";
-	}
-
-	var invalid = Path.GetInvalidPathChars();
-	var chars = value.Select(c => invalid.Contains(c) ? '_' : c).ToArray();
-	return new string(chars);
-}
-
 internal sealed class EngineOptions
 {
 	public SessionOptions Session { get; set; } = new();
@@ -353,7 +240,7 @@ internal sealed class EngineOptions
 
 		try
 		{
-			var json = File.ReadAllText(path);
+			var json = File.ReadAllText(path, System.Text.Encoding.UTF8);
 			return JsonSerializer.Deserialize<EngineOptions>(json, new JsonSerializerOptions
 			{
 				PropertyNameCaseInsensitive = true
@@ -375,15 +262,12 @@ internal sealed class SessionOptions
 
 internal sealed class AcquisitionOptions
 {
-	public int ExpectedSources { get; set; } = 2;
 	public int DefaultChannelsPerSource { get; set; } = 16;
 	public double SampleRateHz { get; set; } = 10000;
-	public string SampleType { get; set; } = "整型16";
 }
 
 internal sealed class SdkOptions
 {
-	public string Mode { get; set; } = "模拟";
 	public string SdkDirectory { get; set; } = "";
 	public string ConfigDirectory { get; set; } = "";
 	public int DataCountPerCallback { get; set; } = 128;
