@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("AcqShell.Contracts")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+4b464ed0a44913f799a9edafbbe73cc6312880aa")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+8796738bf3b8d0cdcf2fa60beda83cc1441c4733")]
 [assembly: System.Reflection.AssemblyProductAttribute("AcqShell.Contracts")]
 [assembly: System.Reflection.AssemblyTitleAttribute("AcqShell.Contracts")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

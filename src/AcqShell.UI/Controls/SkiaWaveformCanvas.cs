@@ -264,7 +264,9 @@ using Avalonia.Media;
 
 namespace AcqShell.UI.Controls;
 
-public sealed record WaveformSeries(string Label, IReadOnlyList<double> Samples, Color Color);
+public sealed record WaveformPoint(double OffsetMs, double Value);
+
+public sealed record WaveformSeries(string Label, IReadOnlyList<WaveformPoint> Samples, Color Color);
 
 public class SkiaWaveformCanvas : Control
 {
@@ -288,9 +290,15 @@ public class SkiaWaveformCanvas : Control
 
     public void SetWaveform(IReadOnlyList<double> samples, double sampleIntervalMs, double windowDurationMs, string channelLabel)
     {
+        var points = new WaveformPoint[samples.Count];
+        for (var index = 0; index < samples.Count; index++)
+        {
+            points[index] = new WaveformPoint(index * sampleIntervalMs, samples[index]);
+        }
+
         SetWaveforms(
         [
-            new WaveformSeries(channelLabel, samples.ToArray(), Color.Parse("#22C55E"))
+            new WaveformSeries(channelLabel, points, Color.Parse("#22C55E"))
         ],
         sampleIntervalMs,
         windowDurationMs,
@@ -434,8 +442,8 @@ public class SkiaWaveformCanvas : Control
 
     private static void DrawWaveforms(DrawingContext context, Rect plotRect, IReadOnlyList<WaveformSeries> series)
     {
-        var min = series.Min(static item => item.Samples.Min());
-        var max = series.Max(static item => item.Samples.Max());
+        var min = series.Min(static item => item.Samples.Min(static point => point.Value));
+        var max = series.Max(static item => item.Samples.Max(static point => point.Value));
         if (Math.Abs(max - min) < 1e-9d)
         {
             min -= 1d;
@@ -477,14 +485,15 @@ public class SkiaWaveformCanvas : Control
         }
     }
 
-    private static List<Point> BuildPlotPoints(Rect plotRect, IReadOnlyList<double> samples, double min, double max)
+    private static List<Point> BuildPlotPoints(Rect plotRect, IReadOnlyList<WaveformPoint> samples, double min, double max)
     {
         var points = new List<Point>(samples.Count);
+        var maxOffsetMs = Math.Max(1d, samples[^1].OffsetMs);
 
         for (var index = 0; index < samples.Count; index++)
         {
-            var x = plotRect.X + plotRect.Width * index / Math.Max(1, samples.Count - 1d);
-            var normalized = (samples[index] - min) / (max - min);
+            var x = plotRect.X + plotRect.Width * samples[index].OffsetMs / maxOffsetMs;
+            var normalized = (samples[index].Value - min) / (max - min);
             var y = plotRect.Bottom - normalized * plotRect.Height;
             points.Add(new Point(x, y));
         }

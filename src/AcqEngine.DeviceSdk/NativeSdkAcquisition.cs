@@ -23,6 +23,8 @@ public sealed class DhSdkAcquisitionSource : IDescriptorAcquisitionSource
     private readonly SourceDescriptor _descriptor;
     private readonly BlockPool _blockPool;
     private readonly DhSdkOptions _options;
+    private readonly Dictionary<int, int> _messageTypeLogCounts = new();
+    private readonly object _messageTypeLogLock = new();
 
     private DhHardwareSdk.SampleDataChangeEventHandle? _sampleDataHandler;
     private CancellationTokenRegistration _tokenRegistration;
@@ -134,8 +136,9 @@ public sealed class DhSdkAcquisitionSource : IDescriptorAcquisitionSource
         int blockIndex,
         long sampleData)
     {
-        if (!DhSdkMessageTypes.IsAnalogMessage(messageType))
+        if (!DhSdkMessageTypes.IsRawWaveformMessage(messageType))
         {
+            LogCallbackMessageType(messageType, sampleTime, groupId, machineId, dataCountPerChannel, bufferCount, accepted: false);
             ReleaseBufferSafe(sampleData);
             return;
         }
@@ -145,6 +148,8 @@ public sealed class DhSdkAcquisitionSource : IDescriptorAcquisitionSource
             ReleaseBufferSafe(sampleData);
             return;
         }
+
+        LogCallbackMessageType(messageType, sampleTime, groupId, machineId, dataCountPerChannel, bufferCount, accepted: true);
 
         var rawBytes = new byte[bufferCount];
         try
@@ -270,7 +275,7 @@ public sealed class DhSdkAcquisitionSource : IDescriptorAcquisitionSource
 
     private static int ResolveSourceId(int machineId, int groupId, int fallbackSourceId)
     {
-        if (machineId >= 0)
+        if (machineId > 0)
         {
             return machineId;
         }
@@ -281,6 +286,31 @@ public sealed class DhSdkAcquisitionSource : IDescriptorAcquisitionSource
         }
 
         return fallbackSourceId;
+    }
+
+    private void LogCallbackMessageType(
+        int messageType,
+        long sampleTime,
+        int groupId,
+        int machineId,
+        int dataCountPerChannel,
+        int bufferCount,
+        bool accepted)
+    {
+        lock (_messageTypeLogLock)
+        {
+            _messageTypeLogCounts.TryGetValue(messageType, out var count);
+            count++;
+            _messageTypeLogCounts[messageType] = count;
+            if (count > 3)
+            {
+                return;
+            }
+
+            var state = accepted ? "accepted" : "ignored";
+            Console.WriteLine(
+                $"[DhSdk] Callback {state}: type={messageType} (0x{messageType:X2}), group={groupId}, machine={machineId}, perChannel={dataCountPerChannel}, bytes={bufferCount}, sampleTime={sampleTime}");
+        }
     }
 
     private static void ReleaseBufferSafe(long point)
@@ -740,11 +770,10 @@ internal static class DhSdkMessageTypes
     public const int SampleAnalogMultiChannelDataV2 = 0x82;
     public const int SampleSingleGroupAnalogDataV2 = 0x83;
 
-    public static bool IsAnalogMessage(int messageType)
+    public static bool IsRawWaveformMessage(int messageType)
     {
         return messageType == SampleAnalogData
             || messageType == SampleSingleGroupAnalogData
-            || messageType == SampleAnalogMultiFreqChannelData
             || messageType == SampleAnalogMultiChannelData
             || messageType == SampleAnalogDataV2
             || messageType == SampleAnalogMultiChannelDataV2

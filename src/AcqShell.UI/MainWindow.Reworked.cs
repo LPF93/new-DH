@@ -21,8 +21,10 @@ public partial class MainWindow : Window
     private const double DefaultWaveWindowSeconds = 2d;
     private const double MaxWaveWindowSeconds = 10d;
     private const int MaxRenderedWavePoints = 1400;
+    private const int PreviewRefreshIntervalMs = 50;
 
     private readonly object _topologyLock = new();
+    private readonly object _previewLock = new();
     private readonly ObservableCollection<DeviceItem> _devices = new();
     private readonly ObservableCollection<ChannelItem> _visibleChannels = new();
     private readonly Dictionary<int, DeviceItem> _devicesByMachineId = new();
@@ -30,6 +32,8 @@ public partial class MainWindow : Window
     private readonly ObservableCollection<ResultViewItem> _resultViews = new();
     private readonly ObservableCollection<StorageSegmentItem> _storageSegments = new();
     private readonly Dictionary<long, Queue<double>> _channelWaveBuffers = new();
+    private readonly Dictionary<long, PendingPreviewState> _pendingPreviewStates = new();
+    private readonly DispatcherTimer _previewRefreshTimer = new() { Interval = TimeSpan.FromMilliseconds(PreviewRefreshIntervalMs) };
     private readonly List<IDescriptorAcquisitionSource> _validationSources = new();
     private StorageOrchestrator? _storageOrchestrator;
     private bool _sdkInitialized;
@@ -56,6 +60,8 @@ public partial class MainWindow : Window
         UpdateStorageSummary();
         UpdateTopologySummary();
         RenderResultViews();
+        _previewRefreshTimer.Tick += OnPreviewRefreshTimerTick;
+        _previewRefreshTimer.Start();
 
         StartValidationBtn.IsEnabled = false;
         StopValidationBtn.IsEnabled = false;
@@ -729,10 +735,30 @@ public partial class MainWindow : Window
             {
                 SdkDirectory = string.Empty,
                 ConfigDirectory = ConfigDirectoryTextBox.Text ?? string.Empty,
-                DataCountPerCallback = 128,
-                SingleMachineMode = false,
+                DataCountPerCallback = ResolveRecommendedDataCountPerCallback(),
+                SingleMachineMode = true,
                 AutoConnectDevices = true
             });
+    }
+
+    private int ResolveRecommendedDataCountPerCallback()
+    {
+        if (_detectedSampleRateHz >= 1_000_000d)
+        {
+            return 8192;
+        }
+
+        if (_detectedSampleRateHz >= 200_000d)
+        {
+            return 4096;
+        }
+
+        if (_detectedSampleRateHz >= 20_000d)
+        {
+            return 1024;
+        }
+
+        return 128;
     }
 
     private int BuildExpectedChannelCount(IReadOnlyList<ChannelItem> enabledChannels)
@@ -794,15 +820,77 @@ public partial class MainWindow : Window
             }
 
             var chunks = ParseWaveChunks(block, expectedChannelCount);
-            var samples = BuildLatestSamples(chunks);
-            var update = new CallbackUiUpdate(callbackCount, totalBytes, nowMs, samples, chunks);
+            if (chunks.Count == 0)
+            {
+                return;
+            }
 
-            Dispatcher.UIThread.Post(() => ApplyCallbackUpdate(update));
+            var seenAtLocal = DateTime.Now;
+            lock (_previewLock)
+            {
+                foreach (var chunk in chunks)
+                {
+                    var compositeId = CreateCompositeId(chunk.MachineId, chunk.ChannelNo);
+                    if (!_channelsByCompositeId.ContainsKey(compositeId))
+                    {
+                        continue;
+                    }
+
+                    AppendWaveSamplesLocked(chunk);
+                    if (chunk.Samples.Count > 0)
+                    {
+                        _pendingPreviewStates[compositeId] = new PendingPreviewState(
+                            chunk.MachineId,
+                            chunk.ChannelNo,
+                            chunk.Samples[^1],
+                            seenAtLocal);
+                    }
+                }
+            }
         }
         finally
         {
             block.Release();
         }
+    }
+
+    private void OnPreviewRefreshTimerTick(object? sender, EventArgs e)
+    {
+        var lastCallbackUnixMs = Interlocked.Read(ref _lastCallbackUnixMs);
+        CallbackBlocksText.Text = Interlocked.Read(ref _callbackBlocks).ToString("N0", CultureInfo.InvariantCulture);
+        CallbackBytesText.Text = $"{Interlocked.Read(ref _callbackBytes):N0} 字节";
+        LastCallbackText.Text = lastCallbackUnixMs > 0
+            ? DateTimeOffset.FromUnixTimeMilliseconds(lastCallbackUnixMs).ToLocalTime().ToString("HH:mm:ss.fff", CultureInfo.InvariantCulture)
+            : "--";
+        UpdateStorageSummary();
+
+        PendingPreviewState[] pendingStates;
+        lock (_previewLock)
+        {
+            if (_pendingPreviewStates.Count == 0)
+            {
+                return;
+            }
+
+            pendingStates = _pendingPreviewStates.Values.ToArray();
+            _pendingPreviewStates.Clear();
+        }
+
+        foreach (var state in pendingStates)
+        {
+            var compositeId = CreateCompositeId(state.MachineId, state.ChannelNo);
+            if (!_channelsByCompositeId.TryGetValue(compositeId, out var channel))
+            {
+                continue;
+            }
+
+            channel.IsOnline = true;
+            channel.LastSeenLocal = state.SeenAtLocal;
+            channel.LastValue = state.Value;
+        }
+
+        UpdateTopologySummary();
+        RenderResultViews();
     }
 
     private static List<ChannelWaveChunk> ParseWaveChunks(DataBlock block, int? expectedChannelCount)
@@ -1028,6 +1116,14 @@ public partial class MainWindow : Window
 
     private void AppendWaveSamples(ChannelWaveChunk chunk)
     {
+        lock (_previewLock)
+        {
+            AppendWaveSamplesLocked(chunk);
+        }
+    }
+
+    private void AppendWaveSamplesLocked(ChannelWaveChunk chunk)
+    {
         var compositeId = CreateCompositeId(chunk.MachineId, chunk.ChannelNo);
         if (!_channelWaveBuffers.TryGetValue(compositeId, out var queue))
         {
@@ -1181,7 +1277,11 @@ public partial class MainWindow : Window
             channel.IsOnline = false;
         }
 
-        _channelWaveBuffers.Clear();
+        lock (_previewLock)
+        {
+            _channelWaveBuffers.Clear();
+            _pendingPreviewStates.Clear();
+        }
         foreach (var view in _resultViews)
         {
             view.Canvas.ClearWaveform();
@@ -1295,9 +1395,17 @@ public partial class MainWindow : Window
                     onlineCount++;
                 }
 
-                if (_channelWaveBuffers.TryGetValue(channel.CompositeId, out var queue) && queue.Count > 1)
+                AcqShell.UI.Controls.WaveformPoint[]? samples = null;
+                lock (_previewLock)
                 {
-                    var samples = BuildVisibleWaveform(queue, desiredSamples);
+                    if (_channelWaveBuffers.TryGetValue(channel.CompositeId, out var queue) && queue.Count > 1)
+                    {
+                        samples = BuildVisibleWaveform(queue, desiredSamples, _detectedSampleRateHz);
+                    }
+                }
+
+                if (samples is not null)
+                {
                     series.Add(new AcqShell.UI.Controls.WaveformSeries(channel.DisplayCode, samples, color));
                 }
             }
@@ -1311,19 +1419,26 @@ public partial class MainWindow : Window
                 continue;
             }
 
-            var displayPointCount = series.Max(static item => item.Samples.Count);
-            var displayIntervalMs = _waveDisplayWindowSeconds * 1000d / Math.Max(1, displayPointCount - 1);
+            var displayIntervalMs = _detectedSampleRateHz > 0d
+                ? 1000d / _detectedSampleRateHz
+                : 1d;
+            var displayWindowMs = series.Max(static item => item.Samples.Count > 0 ? item.Samples[^1].OffsetMs : 0d);
+            if (displayWindowMs <= 0d)
+            {
+                displayWindowMs = _waveDisplayWindowSeconds * 1000d;
+            }
+
             view.SubtitleText.Text = $"在线 {onlineCount}/{selectedChannels.Count}，已绘制 {series.Count} 条波形";
-            view.Canvas.SetWaveforms(series, displayIntervalMs, _waveDisplayWindowSeconds * 1000d, $"叠加显示 {series.Count} 条通道");
+            view.Canvas.SetWaveforms(series, displayIntervalMs, displayWindowMs, $"叠加显示 {series.Count} 条通道");
         }
     }
 
-    private static double[] BuildVisibleWaveform(Queue<double> queue, int desiredSamples)
+    private static AcqShell.UI.Controls.WaveformPoint[] BuildVisibleWaveform(Queue<double> queue, int desiredSamples, double sampleRateHz)
     {
         var allSamples = queue.ToArray();
         if (allSamples.Length <= 2)
         {
-            return allSamples;
+            return CreateWaveformPoints(allSamples, sampleRateHz);
         }
 
         var takeCount = desiredSamples > 0 ? Math.Min(allSamples.Length, desiredSamples) : allSamples.Length;
@@ -1331,29 +1446,39 @@ public partial class MainWindow : Window
         var visible = new double[takeCount];
         Array.Copy(allSamples, startIndex, visible, 0, takeCount);
 
-        return Downsample(visible, MaxRenderedWavePoints);
-    }
-
-    private static double[] Downsample(double[] samples, int maxPoints)
-    {
-        if (samples.Length <= maxPoints)
+        if (visible.Length <= MaxRenderedWavePoints)
         {
-            return samples;
+            return CreateWaveformPoints(visible, sampleRateHz);
         }
 
-        return DownsampleWithLargestTriangleThreeBuckets(samples, maxPoints);
+        var sampled = DownsampleWithLargestTriangleThreeBuckets(visible, MaxRenderedWavePoints);
+        return CreateWaveformPoints(sampled, sampleRateHz);
     }
 
-    private static double[] DownsampleWithLargestTriangleThreeBuckets(IReadOnlyList<double> samples, int threshold)
+    private static AcqShell.UI.Controls.WaveformPoint[] CreateWaveformPoints(IReadOnlyList<double> samples, double sampleRateHz)
+    {
+        var sampleIntervalMs = sampleRateHz > 0d ? 1000d / sampleRateHz : 1d;
+        var points = new AcqShell.UI.Controls.WaveformPoint[samples.Count];
+        for (var index = 0; index < samples.Count; index++)
+        {
+            points[index] = new AcqShell.UI.Controls.WaveformPoint(index * sampleIntervalMs, samples[index]);
+        }
+
+        return points;
+    }
+
+    private static IndexedSample[] DownsampleWithLargestTriangleThreeBuckets(IReadOnlyList<double> samples, int threshold)
     {
         if (threshold >= samples.Count || threshold < 3)
         {
-            return samples.ToArray();
+            return samples
+                .Select(static (value, index) => new IndexedSample(index, value))
+                .ToArray();
         }
 
-        var sampled = new double[threshold];
-        sampled[0] = samples[0];
-        sampled[^1] = samples[^1];
+        var sampled = new IndexedSample[threshold];
+        sampled[0] = new IndexedSample(0, samples[0]);
+        sampled[^1] = new IndexedSample(samples.Count - 1, samples[^1]);
 
         var bucketSize = (double)(samples.Count - 2) / (threshold - 2);
         var anchorIndex = 0;
@@ -1403,11 +1528,23 @@ public partial class MainWindow : Window
                 }
             }
 
-            sampled[bucketIndex + 1] = samples[selectedIndex];
+            sampled[bucketIndex + 1] = new IndexedSample(selectedIndex, samples[selectedIndex]);
             anchorIndex = selectedIndex;
         }
 
         return sampled;
+    }
+
+    private static AcqShell.UI.Controls.WaveformPoint[] CreateWaveformPoints(IReadOnlyList<IndexedSample> samples, double sampleRateHz)
+    {
+        var sampleIntervalMs = sampleRateHz > 0d ? 1000d / sampleRateHz : 1d;
+        var points = new AcqShell.UI.Controls.WaveformPoint[samples.Count];
+        for (var index = 0; index < samples.Count; index++)
+        {
+            points[index] = new AcqShell.UI.Controls.WaveformPoint(samples[index].Index * sampleIntervalMs, samples[index].Value);
+        }
+
+        return points;
     }
 
     private void ClearTopology()
@@ -1418,8 +1555,13 @@ public partial class MainWindow : Window
             _visibleChannels.Clear();
             _devicesByMachineId.Clear();
             _channelsByCompositeId.Clear();
-            _channelWaveBuffers.Clear();
             _selectedMachineId = -1;
+        }
+
+        lock (_previewLock)
+        {
+            _channelWaveBuffers.Clear();
+            _pendingPreviewStates.Clear();
         }
 
         SelectedDeviceText.Text = "当前设备：未选择";
@@ -1450,4 +1592,8 @@ public partial class MainWindow : Window
     private sealed record ChannelValueSample(int MachineId, int ChannelNo, double Value);
 
     private sealed record ChannelWaveChunk(int MachineId, int ChannelNo, IReadOnlyList<double> Samples);
+
+    private readonly record struct PendingPreviewState(int MachineId, int ChannelNo, double Value, DateTime SeenAtLocal);
+
+    private readonly record struct IndexedSample(int Index, double Value);
 }

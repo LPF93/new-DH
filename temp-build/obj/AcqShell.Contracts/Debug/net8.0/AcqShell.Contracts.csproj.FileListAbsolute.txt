@@ -10,3 +10,15 @@ C:\GIt\new-DH\temp-build\obj\AcqShell.Contracts\Debug\net8.0\AcqShell.Contracts.
 C:\GIt\new-DH\temp-build\obj\AcqShell.Contracts\Debug\net8.0\refint\AcqShell.Contracts.dll
 C:\GIt\new-DH\temp-build\obj\AcqShell.Contracts\Debug\net8.0\AcqShell.Contracts.pdb
 C:\GIt\new-DH\temp-build\obj\AcqShell.Contracts\Debug\net8.0\ref\AcqShell.Contracts.dll
+D:\GIT-PROJECT\new-DH\src\AcqShell.Contracts\bin\Debug\net8.0\AcqShell.Contracts.deps.json
+D:\GIT-PROJECT\new-DH\src\AcqShell.Contracts\bin\Debug\net8.0\AcqShell.Contracts.dll
+D:\GIT-PROJECT\new-DH\src\AcqShell.Contracts\bin\Debug\net8.0\AcqShell.Contracts.pdb
+D:\GIT-PROJECT\new-DH\temp-build\obj\AcqShell.Contracts\Debug\net8.0\AcqShell.Contracts.GeneratedMSBuildEditorConfig.editorconfig
+D:\GIT-PROJECT\new-DH\temp-build\obj\AcqShell.Contracts\Debug\net8.0\AcqShell.Contracts.AssemblyInfoInputs.cache
+D:\GIT-PROJECT\new-DH\temp-build\obj\AcqShell.Contracts\Debug\net8.0\AcqShell.Contracts.AssemblyInfo.cs
+D:\GIT-PROJECT\new-DH\temp-build\obj\AcqShell.Contracts\Debug\net8.0\AcqShell.Contracts.csproj.CoreCompileInputs.cache
+D:\GIT-PROJECT\new-DH\temp-build\obj\AcqShell.Contracts\Debug\net8.0\AcqShell.Contracts.sourcelink.json
+D:\GIT-PROJECT\new-DH\temp-build\obj\AcqShell.Contracts\Debug\net8.0\AcqShell.Contracts.dll
+D:\GIT-PROJECT\new-DH\temp-build\obj\AcqShell.Contracts\Debug\net8.0\refint\AcqShell.Contracts.dll
+D:\GIT-PROJECT\new-DH\temp-build\obj\AcqShell.Contracts\Debug\net8.0\AcqShell.Contracts.pdb
+D:\GIT-PROJECT\new-DH\temp-build\obj\AcqShell.Contracts\Debug\net8.0\ref\AcqShell.Contracts.dll

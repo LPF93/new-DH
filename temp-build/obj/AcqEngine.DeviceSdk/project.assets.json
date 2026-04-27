@@ -27,19 +27,24 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\26453\\.nuget\\packages\\": {}
+    "C:\\Users\\27249\\.nuget\\packages\\": {},
+    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\GIt\\new-DH\\src\\AcqEngine.DeviceSdk\\AcqEngine.DeviceSdk.csproj",
+      "projectUniqueName": "D:\\GIT-PROJECT\\new-DH\\src\\AcqEngine.DeviceSdk\\AcqEngine.DeviceSdk.csproj",
       "projectName": "AcqEngine.DeviceSdk",
-      "projectPath": "C:\\GIt\\new-DH\\src\\AcqEngine.DeviceSdk\\AcqEngine.DeviceSdk.csproj",
-      "packagesPath": "C:\\Users\\26453\\.nuget\\packages\\",
-      "outputPath": "C:\\GIt\\new-DH\\temp-build\\obj\\AcqEngine.DeviceSdk\\",
+      "projectPath": "D:\\GIT-PROJECT\\new-DH\\src\\AcqEngine.DeviceSdk\\AcqEngine.DeviceSdk.csproj",
+      "packagesPath": "C:\\Users\\27249\\.nuget\\packages\\",
+      "outputPath": "D:\\GIT-PROJECT\\new-DH\\temp-build\\obj\\AcqEngine.DeviceSdk\\",
       "projectStyle": "PackageReference",
+      "fallbackFolders": [
+        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+      ],
       "configFilePaths": [
-        "C:\\Users\\26453\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\27249\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
@@ -53,8 +58,8 @@
         "net8.0": {
           "targetAlias": "net8.0",
           "projectReferences": {
-            "C:\\GIt\\new-DH\\src\\AcqEngine.Core\\AcqEngine.Core.csproj": {
-              "projectPath": "C:\\GIt\\new-DH\\src\\AcqEngine.Core\\AcqEngine.Core.csproj"
+            "D:\\GIT-PROJECT\\new-DH\\src\\AcqEngine.Core\\AcqEngine.Core.csproj": {
+              "projectPath": "D:\\GIT-PROJECT\\new-DH\\src\\AcqEngine.Core\\AcqEngine.Core.csproj"
             }
           }
         }
@@ -90,7 +95,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.310/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.304/PortableRuntimeIdentifierGraph.json"
       }
     }
   }

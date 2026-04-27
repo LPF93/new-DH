@@ -1,20 +1,24 @@
 {
   "format": 1,
   "restore": {
-    "C:\\GIt\\new-DH\\src\\AcqEngine.Core\\AcqEngine.Core.csproj": {}
+    "D:\\GIT-PROJECT\\new-DH\\src\\AcqEngine.Core\\AcqEngine.Core.csproj": {}
   },
   "projects": {
-    "C:\\GIt\\new-DH\\src\\AcqEngine.Core\\AcqEngine.Core.csproj": {
+    "D:\\GIT-PROJECT\\new-DH\\src\\AcqEngine.Core\\AcqEngine.Core.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\GIt\\new-DH\\src\\AcqEngine.Core\\AcqEngine.Core.csproj",
+        "projectUniqueName": "D:\\GIT-PROJECT\\new-DH\\src\\AcqEngine.Core\\AcqEngine.Core.csproj",
         "projectName": "AcqEngine.Core",
-        "projectPath": "C:\\GIt\\new-DH\\src\\AcqEngine.Core\\AcqEngine.Core.csproj",
-        "packagesPath": "C:\\Users\\26453\\.nuget\\packages\\",
-        "outputPath": "C:\\GIt\\new-DH\\temp-build\\obj\\AcqEngine.Core\\",
+        "projectPath": "D:\\GIT-PROJECT\\new-DH\\src\\AcqEngine.Core\\AcqEngine.Core.csproj",
+        "packagesPath": "C:\\Users\\27249\\.nuget\\packages\\",
+        "outputPath": "D:\\GIT-PROJECT\\new-DH\\temp-build\\obj\\AcqEngine.Core\\",
         "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
         "configFilePaths": [
-          "C:\\Users\\26453\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\27249\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -61,7 +65,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.310/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.304/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

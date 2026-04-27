@@ -10,3 +10,15 @@ C:\GIt\new-DH\temp-build\obj\AcqEngine.Core\Debug\net8.0\AcqEngine.Core.dll
 C:\GIt\new-DH\temp-build\obj\AcqEngine.Core\Debug\net8.0\refint\AcqEngine.Core.dll
 C:\GIt\new-DH\temp-build\obj\AcqEngine.Core\Debug\net8.0\AcqEngine.Core.pdb
 C:\GIt\new-DH\temp-build\obj\AcqEngine.Core\Debug\net8.0\ref\AcqEngine.Core.dll
+D:\GIT-PROJECT\new-DH\src\AcqEngine.Core\bin\Debug\net8.0\AcqEngine.Core.deps.json
+D:\GIT-PROJECT\new-DH\src\AcqEngine.Core\bin\Debug\net8.0\AcqEngine.Core.dll
+D:\GIT-PROJECT\new-DH\src\AcqEngine.Core\bin\Debug\net8.0\AcqEngine.Core.pdb
+D:\GIT-PROJECT\new-DH\temp-build\obj\AcqEngine.Core\Debug\net8.0\AcqEngine.Core.GeneratedMSBuildEditorConfig.editorconfig
+D:\GIT-PROJECT\new-DH\temp-build\obj\AcqEngine.Core\Debug\net8.0\AcqEngine.Core.AssemblyInfoInputs.cache
+D:\GIT-PROJECT\new-DH\temp-build\obj\AcqEngine.Core\Debug\net8.0\AcqEngine.Core.AssemblyInfo.cs
+D:\GIT-PROJECT\new-DH\temp-build\obj\AcqEngine.Core\Debug\net8.0\AcqEngine.Core.csproj.CoreCompileInputs.cache
+D:\GIT-PROJECT\new-DH\temp-build\obj\AcqEngine.Core\Debug\net8.0\AcqEngine.Core.sourcelink.json
+D:\GIT-PROJECT\new-DH\temp-build\obj\AcqEngine.Core\Debug\net8.0\AcqEngine.Core.dll
+D:\GIT-PROJECT\new-DH\temp-build\obj\AcqEngine.Core\Debug\net8.0\refint\AcqEngine.Core.dll
+D:\GIT-PROJECT\new-DH\temp-build\obj\AcqEngine.Core\Debug\net8.0\AcqEngine.Core.pdb
+D:\GIT-PROJECT\new-DH\temp-build\obj\AcqEngine.Core\Debug\net8.0\ref\AcqEngine.Core.dll
