@@ -9,13 +9,15 @@
       "AcqEngine.Storage.Tdms/1.0.0": {
         "dependencies": {
           "AcqEngine.Core": "1.0.0",
-          "AcqEngine.Storage.Abstractions": "1.0.0"
+          "AcqEngine.Storage.Abstractions": "1.0.0",
+          "AcqEngine.Core.Reference": "1.0.0.0",
+          "AcqEngine.Storage.Abstractions.Reference": "1.0.0.0"
         },
         "runtime": {
           "AcqEngine.Storage.Tdms.dll": {}
         }
       },
-      "AcqEngine.Core/1.0.0": {
+      "AcqEngine.Core.Reference/1.0.0.0": {
         "runtime": {
           "AcqEngine.Core.dll": {
             "assemblyVersion": "1.0.0.0",
@@ -23,10 +25,7 @@
           }
         }
       },
-      "AcqEngine.Storage.Abstractions/1.0.0": {
-        "dependencies": {
-          "AcqEngine.Core": "1.0.0"
-        },
+      "AcqEngine.Storage.Abstractions.Reference/1.0.0.0": {
         "runtime": {
           "AcqEngine.Storage.Abstractions.dll": {
             "assemblyVersion": "1.0.0.0",
@@ -42,13 +41,13 @@
       "serviceable": false,
       "sha512": ""
     },
-    "AcqEngine.Core/1.0.0": {
-      "type": "project",
+    "AcqEngine.Core.Reference/1.0.0.0": {
+      "type": "reference",
       "serviceable": false,
       "sha512": ""
     },
-    "AcqEngine.Storage.Abstractions/1.0.0": {
-      "type": "project",
+    "AcqEngine.Storage.Abstractions.Reference/1.0.0.0": {
+      "type": "reference",
       "serviceable": false,
       "sha512": ""
     }

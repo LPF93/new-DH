@@ -25,6 +25,10 @@ internal static class TdmsNative
 
     public static string AvailabilityMessage { get; }
 
+    public static IReadOnlyList<string> MissingDependencies { get; }
+
+    public static bool HasDataModels { get; }
+
     static TdmsNative()
     {
         try
@@ -32,7 +36,22 @@ internal static class TdmsNative
             ResolvedDllDirectory = ResolveDllDirectory();
             if (!IsValidDllDirectory(ResolvedDllDirectory))
             {
-                AvailabilityMessage = "未找到 TDMS 原生库目录。可通过 TDMS_DLL_DIR 环境变量指定 nilibddc.dll 所在目录。";
+                AvailabilityMessage = "未找到 TDMS 原生库目录。请准备 nilibddc.dll 及其依赖 DLL，并通过 TDMS_DLL_DIR 指向所在目录。";
+                MissingDependencies = Array.Empty<string>();
+                return;
+            }
+
+            MissingDependencies = FindMissingDependencies(ResolvedDllDirectory!);
+            if (MissingDependencies.Count > 0)
+            {
+                AvailabilityMessage = $"TDMS 运行时不完整，目录 {ResolvedDllDirectory} 缺少：{string.Join("、", MissingDependencies)}";
+                return;
+            }
+
+            HasDataModels = HasRequiredDataModels(ResolvedDllDirectory!);
+            if (!HasDataModels)
+            {
+                AvailabilityMessage = $"TDMS 运行时资源不完整，目录 {ResolvedDllDirectory} 缺少 DataModels\\USI。请把 dev\\bin\\64-bit 的整套内容一起复制过来。";
                 return;
             }
 
@@ -47,6 +66,8 @@ internal static class TdmsNative
         catch (Exception ex)
         {
             IsAvailable = false;
+            MissingDependencies = Array.Empty<string>();
+            HasDataModels = false;
             AvailabilityMessage = $"TDMS 原生库加载失败：{ex.Message}";
         }
     }
@@ -141,6 +162,20 @@ internal static class TdmsNative
         return !string.IsNullOrWhiteSpace(directory) &&
                Directory.Exists(directory) &&
                File.Exists(Path.Combine(directory, DllName));
+    }
+
+    private static IReadOnlyList<string> FindMissingDependencies(string dllDirectory)
+    {
+        return DependencyDlls
+            .Where(dependency => !File.Exists(Path.Combine(dllDirectory, dependency)))
+            .ToArray();
+    }
+
+    private static bool HasRequiredDataModels(string dllDirectory)
+    {
+        var dataModelsDir = Path.Combine(dllDirectory, "DataModels");
+        var usiDir = Path.Combine(dataModelsDir, "USI");
+        return Directory.Exists(dataModelsDir) && Directory.Exists(usiDir);
     }
 
     private static void PrepareEnvironment(string dllDirectory)
@@ -313,6 +348,12 @@ internal static class TdmsNative
 
     [DllImport(DllName, CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
     public static extern int DDC_CreateFilePropertyString(IntPtr file, string property, string value);
+
+    [DllImport(DllName, CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
+    public static extern int DDC_CreateChannelGroupPropertyString(IntPtr channelGroup, string property, string value);
+
+    [DllImport(DllName, CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
+    public static extern int DDC_CreateChannelGroupPropertyDouble(IntPtr channelGroup, string property, double value);
 
     [DllImport(DllName, CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
     public static extern int DDC_CreateChannelPropertyString(IntPtr channel, string property, string value);

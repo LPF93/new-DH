@@ -24,6 +24,7 @@ public sealed class DhSdkAcquisitionSource : IDescriptorAcquisitionSource
     private readonly BlockPool _blockPool;
     private readonly DhSdkOptions _options;
     private readonly Dictionary<int, int> _messageTypeLogCounts = new();
+    private readonly Dictionary<string, int> _mappedBlockLogCounts = new();
     private readonly object _messageTypeLogLock = new();
 
     private DhHardwareSdk.SampleDataChangeEventHandle? _sampleDataHandler;
@@ -163,6 +164,7 @@ public sealed class DhSdkAcquisitionSource : IDescriptorAcquisitionSource
 
         var channelCount = ResolveChannelCount(rawBytes.Length, dataCountPerChannel, _descriptor.ChannelCount);
         var mappedSourceId = ResolveSourceId(machineId, groupId, _descriptor.SourceId);
+        LogMappedBlock(machineId, groupId, mappedSourceId, channelCount, dataCountPerChannel, bufferCount, blockIndex, totalDataCount);
 
         if (totalDataCount + dataCountPerChannel > _callbackPos)
         {
@@ -310,6 +312,33 @@ public sealed class DhSdkAcquisitionSource : IDescriptorAcquisitionSource
             var state = accepted ? "accepted" : "ignored";
             Console.WriteLine(
                 $"[DhSdk] Callback {state}: type={messageType} (0x{messageType:X2}), group={groupId}, machine={machineId}, perChannel={dataCountPerChannel}, bytes={bufferCount}, sampleTime={sampleTime}");
+        }
+    }
+
+    private void LogMappedBlock(
+        int machineId,
+        int groupId,
+        int mappedSourceId,
+        int channelCount,
+        int dataCountPerChannel,
+        int bufferCount,
+        int blockIndex,
+        long totalDataCount)
+    {
+        var key = $"{machineId}|{groupId}|{mappedSourceId}|{channelCount}|{dataCountPerChannel}|{bufferCount}";
+
+        lock (_messageTypeLogLock)
+        {
+            _mappedBlockLogCounts.TryGetValue(key, out var count);
+            count++;
+            _mappedBlockLogCounts[key] = count;
+            if (count > 3)
+            {
+                return;
+            }
+
+            Console.WriteLine(
+                $"[DhSdk] RawBlock mapped: machine={machineId}, group={groupId}, source={mappedSourceId}, channels={channelCount}, samples/ch={dataCountPerChannel}, bytes={bufferCount}, blockIndex={blockIndex}, totalData={totalDataCount}");
         }
     }
 

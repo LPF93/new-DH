@@ -211,8 +211,10 @@ public sealed class ResultViewItem
 
     private readonly Dictionary<long, ChannelItem> _availableChannels = new();
     private readonly List<long> _selectedChannelIds = new();
+    private readonly ComboBox _deviceFilterComboBox;
     private readonly StackPanel _channelOptionsPanel;
     private readonly WrapPanel _legendPanel;
+    private int? _selectedMachineFilter;
 
     public ResultViewItem(string title)
     {
@@ -247,6 +249,13 @@ public sealed class ResultViewItem
             Spacing = 6
         };
 
+        _deviceFilterComboBox = new ComboBox
+        {
+            Width = 160,
+            MinWidth = 160
+        };
+        _deviceFilterComboBox.SelectionChanged += (_, _) => OnDeviceFilterChanged();
+
         _legendPanel = new WrapPanel
         {
             Orientation = Orientation.Horizontal,
@@ -255,7 +264,7 @@ public sealed class ResultViewItem
 
         var selectAllButton = new Button
         {
-            Content = "全选已启用",
+            Content = "全选当前筛选",
             Background = new Avalonia.Media.SolidColorBrush(Avalonia.Media.Color.Parse("#1D4ED8")),
             Foreground = Avalonia.Media.Brushes.White
         };
@@ -289,6 +298,13 @@ public sealed class ResultViewItem
                         Spacing = 8,
                         Children =
                         {
+                            new TextBlock
+                            {
+                                Text = "设备范围",
+                                VerticalAlignment = VerticalAlignment.Center,
+                                Foreground = new Avalonia.Media.SolidColorBrush(Avalonia.Media.Color.Parse("#1F2937"))
+                            },
+                            _deviceFilterComboBox,
                             selectAllButton,
                             clearButton
                         }
@@ -373,11 +389,24 @@ public sealed class ResultViewItem
             _availableChannels[channel.CompositeId] = channel;
         }
 
+        var filterChanged = RebuildDeviceFilterOptions();
         if (_selectedChannelIds.RemoveAll(compositeId => !_availableChannels.ContainsKey(compositeId)) > 0)
         {
             changed = true;
         }
 
+        if (_selectedMachineFilter.HasValue)
+        {
+            var selectedMachineId = _selectedMachineFilter.Value;
+            if (_selectedChannelIds.RemoveAll(compositeId =>
+                    _availableChannels.TryGetValue(compositeId, out var channel) &&
+                    channel.MachineId != selectedMachineId) > 0)
+            {
+                changed = true;
+            }
+        }
+
+        changed |= filterChanged;
         if (changed)
         {
             RebuildChannelOptions();
@@ -480,7 +509,7 @@ public sealed class ResultViewItem
 
     private void SelectAllChannels()
     {
-        SetSelectedChannels(_availableChannels.Keys, true, true);
+        SetSelectedChannels(GetFilteredChannels().Select(static channel => channel.CompositeId), true, true);
     }
 
     private void ClearSelectedChannels()
@@ -517,19 +546,20 @@ public sealed class ResultViewItem
     private void RebuildChannelOptions()
     {
         _channelOptionsPanel.Children.Clear();
+        var filteredChannels = GetFilteredChannels();
 
-        if (_availableChannels.Count == 0)
+        if (filteredChannels.Count == 0)
         {
             _channelOptionsPanel.Children.Add(new TextBlock
             {
-                Text = "当前没有可选通道",
+                Text = _availableChannels.Count == 0 ? "当前没有可选通道" : "当前设备筛选下没有可选通道",
                 TextWrapping = Avalonia.Media.TextWrapping.Wrap,
                 Foreground = new Avalonia.Media.SolidColorBrush(Avalonia.Media.Color.Parse("#526581"))
             });
             return;
         }
 
-        foreach (var channel in _availableChannels.Values.OrderBy(static channel => channel.CompositeId))
+        foreach (var channel in filteredChannels)
         {
             var selectedIndex = _selectedChannelIds.IndexOf(channel.CompositeId);
             var swatchBrush = new Avalonia.Media.SolidColorBrush(
@@ -585,6 +615,8 @@ public sealed class ResultViewItem
 
     private void UpdateSelectionSummary()
     {
+        var filterLabel = _selectedMachineFilter.HasValue ? $"AI{_selectedMachineFilter.Value}" : "全部设备";
+
         if (_availableChannels.Count == 0)
         {
             SelectionSummaryText.Text = "当前没有可用通道";
@@ -593,7 +625,7 @@ public sealed class ResultViewItem
 
         if (_selectedChannelIds.Count == 0)
         {
-            SelectionSummaryText.Text = "当前未选择通道";
+            SelectionSummaryText.Text = $"当前未选择通道 · {filterLabel}";
             return;
         }
 
@@ -603,7 +635,80 @@ public sealed class ResultViewItem
             .ToList();
 
         var suffix = _selectedChannelIds.Count > selectedNames.Count ? " 等" : string.Empty;
-        SelectionSummaryText.Text = $"已选 {_selectedChannelIds.Count} 个通道：{string.Join("、", selectedNames)}{suffix}";
+        SelectionSummaryText.Text = $"已选 {_selectedChannelIds.Count} 个通道 · {filterLabel}：{string.Join("、", selectedNames)}{suffix}";
+    }
+
+    private List<ChannelItem> GetFilteredChannels()
+    {
+        return _availableChannels.Values
+            .Where(channel => !_selectedMachineFilter.HasValue || channel.MachineId == _selectedMachineFilter.Value)
+            .OrderBy(static channel => channel.CompositeId)
+            .ToList();
+    }
+
+    private bool RebuildDeviceFilterOptions()
+    {
+        var machineIds = _availableChannels.Values
+            .Select(static channel => channel.MachineId)
+            .Distinct()
+            .OrderBy(static machineId => machineId)
+            .ToList();
+
+        var selectedMachineExists = _selectedMachineFilter.HasValue && machineIds.Contains(_selectedMachineFilter.Value);
+        var changed = _selectedMachineFilter.HasValue && !selectedMachineExists;
+        if (!selectedMachineExists)
+        {
+            _selectedMachineFilter = null;
+        }
+
+        var items = new List<ComboBoxItem>
+        {
+            new()
+            {
+                Content = "全部设备",
+                Tag = null
+            }
+        };
+
+        foreach (var machineId in machineIds)
+        {
+            items.Add(new ComboBoxItem
+            {
+                Content = $"AI{machineId}",
+                Tag = machineId
+            });
+        }
+
+        _deviceFilterComboBox.ItemsSource = items;
+        _deviceFilterComboBox.SelectedIndex = _selectedMachineFilter.HasValue
+            ? machineIds.IndexOf(_selectedMachineFilter.Value) + 1
+            : 0;
+
+        return changed;
+    }
+
+    private void OnDeviceFilterChanged()
+    {
+        var selectedMachine = (_deviceFilterComboBox.SelectedItem as ComboBoxItem)?.Tag as int?;
+        if (_selectedMachineFilter == selectedMachine)
+        {
+            return;
+        }
+
+        _selectedMachineFilter = selectedMachine;
+
+        if (_selectedMachineFilter.HasValue)
+        {
+            var selectedMachineId = _selectedMachineFilter.Value;
+            _selectedChannelIds.RemoveAll(compositeId =>
+                _availableChannels.TryGetValue(compositeId, out var channel) &&
+                channel.MachineId != selectedMachineId);
+        }
+
+        HasManualSelection = true;
+        RebuildChannelOptions();
+        UpdateSelectionSummary();
+        SelectionChanged?.Invoke(this);
     }
 }
 

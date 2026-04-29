@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <UseBinaryProjectReferences Condition="'$(UseBinaryProjectReferences)' == ''">false</UseBinaryProjectReferences>
+    <UseBinaryProjectReferences Condition="'$(UseBinaryProjectReferences)' == ''">true</UseBinaryProjectReferences>
   </PropertyGroup>
 
   <ItemGroup Condition="'$(UseBinaryProjectReferences)' != 'true'">
@@ -53,6 +53,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <ProduceReferenceAssembly>false</ProduceReferenceAssembly>
+    <UseAppHost>false</UseAppHost>
   </PropertyGroup>
 
 </Project>

@@ -6,4 +6,9 @@
     <CodePage>65001</CodePage>
     <Utf8Output>true</Utf8Output>
   </PropertyGroup>
+
+  <PropertyGroup Condition="'$(MSBuildProjectName)' == 'AcqShell.UI'">
+    <BaseIntermediateOutputPath>buildobj\</BaseIntermediateOutputPath>
+    <MSBuildProjectExtensionsPath>buildobj\</MSBuildProjectExtensionsPath>
+  </PropertyGroup>
 </Project>

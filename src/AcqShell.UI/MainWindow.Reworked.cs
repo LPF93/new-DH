@@ -33,6 +33,7 @@ public partial class MainWindow : Window
     private readonly ObservableCollection<StorageSegmentItem> _storageSegments = new();
     private readonly Dictionary<long, Queue<double>> _channelWaveBuffers = new();
     private readonly Dictionary<long, PendingPreviewState> _pendingPreviewStates = new();
+    private readonly Dictionary<string, int> _callbackHeaderLogCounts = new();
     private readonly DispatcherTimer _previewRefreshTimer = new() { Interval = TimeSpan.FromMilliseconds(PreviewRefreshIntervalMs) };
     private readonly List<IDescriptorAcquisitionSource> _validationSources = new();
     private StorageOrchestrator? _storageOrchestrator;
@@ -663,6 +664,7 @@ public partial class MainWindow : Window
             Interlocked.Exchange(ref _lastCallbackUnixMs, 0);
             InitializeCounters();
             _channelWaveBuffers.Clear();
+            _callbackHeaderLogCounts.Clear();
 
             foreach (var channel in _channelsByCompositeId.Values)
             {
@@ -796,6 +798,7 @@ public partial class MainWindow : Window
             var totalBytes = Interlocked.Add(ref _callbackBytes, block.PayloadLength);
             var nowMs = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
             Interlocked.Exchange(ref _lastCallbackUnixMs, nowMs);
+            TryLogCallbackHeader(block);
 
             if (_storageOrchestrator is not null)
             {
@@ -891,6 +894,28 @@ public partial class MainWindow : Window
 
         UpdateTopologySummary();
         RenderResultViews();
+    }
+
+    private void TryLogCallbackHeader(DataBlock block)
+    {
+        var key = $"{block.Header.SourceId}|{block.Header.ChannelCount}|{block.Header.SampleCountPerChannel}|{block.PayloadLength}";
+
+        if (_callbackHeaderLogCounts.TryGetValue(key, out var count))
+        {
+            if (count >= 3)
+            {
+                return;
+            }
+
+            _callbackHeaderLogCounts[key] = count + 1;
+        }
+        else
+        {
+            _callbackHeaderLogCounts[key] = 1;
+        }
+
+        AppendLog(
+            $"采样回调块：source={block.Header.SourceId}，channels={block.Header.ChannelCount}，samples/ch={block.Header.SampleCountPerChannel}，bytes={block.PayloadLength}。");
     }
 
     private static List<ChannelWaveChunk> ParseWaveChunks(DataBlock block, int? expectedChannelCount)
@@ -1281,6 +1306,7 @@ public partial class MainWindow : Window
         {
             _channelWaveBuffers.Clear();
             _pendingPreviewStates.Clear();
+            _callbackHeaderLogCounts.Clear();
         }
         foreach (var view in _resultViews)
         {
@@ -1570,6 +1596,12 @@ public partial class MainWindow : Window
 
     private void AppendLog(string line)
     {
+        if (!Dispatcher.UIThread.CheckAccess())
+        {
+            Dispatcher.UIThread.Post(() => AppendLog(line));
+            return;
+        }
+
         var entry = $"[{DateTime.Now:HH:mm:ss}] {line}";
         LogBox.Text = string.IsNullOrWhiteSpace(LogBox.Text)
             ? entry

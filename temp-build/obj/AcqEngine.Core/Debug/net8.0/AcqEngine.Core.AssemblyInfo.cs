@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("AcqEngine.Core")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+8796738bf3b8d0cdcf2fa60beda83cc1441c4733")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+76d2ed600a1696a41b39fa3ce38f821d1a545dbf")]
 [assembly: System.Reflection.AssemblyProductAttribute("AcqEngine.Core")]
 [assembly: System.Reflection.AssemblyTitleAttribute("AcqEngine.Core")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

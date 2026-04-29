@@ -65,7 +65,7 @@ public sealed class TdmsWriter : IContainerWriter
         var sessionDir = _namingPolicy.BuildSessionDirectory(_session);
         Directory.CreateDirectory(sessionDir);
 
-        var segmentFile = _namingPolicy.BuildSegmentFileName(_session, streamKind, segmentNo);
+        var segmentFile = SanitizeAsciiFileName(_namingPolicy.BuildSegmentFileName(_session, streamKind, segmentNo));
         if (!segmentFile.EndsWith(_extension, StringComparison.OrdinalIgnoreCase))
         {
             segmentFile += _extension;
@@ -77,7 +77,7 @@ public sealed class TdmsWriter : IContainerWriter
         var fileHandle = IntPtr.Zero;
         ThrowIfError(
             TdmsNative.DDC_CreateFile(segmentPath, "TDMS", fileName, string.Empty, fileName, "AcqEngine", ref fileHandle),
-            "DDC_CreateFile");
+            $"DDC_CreateFile ({segmentPath})");
 
         _fileHandle = fileHandle;
         _currentStreamKind = streamKind;
@@ -162,11 +162,19 @@ public sealed class TdmsWriter : IContainerWriter
         _sourceDescriptors.TryGetValue(sourceId, out var descriptor);
 
         var groupHandle = IntPtr.Zero;
-        var groupName = $"Source_{sourceId:D4}";
-        var groupDescription = SanitizeAscii(descriptor?.DeviceName ?? $"Source {sourceId}");
+        var groupName = BuildGroupName(sourceId);
+        var groupDescription = SanitizeAscii(descriptor?.DeviceName ?? groupName);
         ThrowIfError(
             TdmsNative.DDC_AddChannelGroup(_fileHandle, groupName, groupDescription, ref groupHandle),
             "DDC_AddChannelGroup");
+
+        TryCreateGroupProperty(groupHandle, "source_id", sourceId.ToString(CultureInfo.InvariantCulture));
+        TryCreateGroupProperty(groupHandle, "source_name", descriptor?.DeviceName ?? groupName);
+        TryCreateGroupProperty(groupHandle, "channel_count", Math.Max(1, descriptor?.ChannelCount ?? 1).ToString(CultureInfo.InvariantCulture));
+        if (descriptor?.SampleRateHz > 0d)
+        {
+            TryCreateGroupProperty(groupHandle, "sample_rate_hz", descriptor.SampleRateHz);
+        }
 
         state = new TdmsSourceState(sourceId, descriptor, groupHandle);
         _sourceStates[sourceId] = state;
@@ -175,6 +183,11 @@ public sealed class TdmsWriter : IContainerWriter
 
     private void AppendBlockSamples(DataBlock block, TdmsSourceState sourceState)
     {
+        if (TryAppendAggregateBlockSamples(block))
+        {
+            return;
+        }
+
         var channelCount = ResolveChannelCount(block);
         var sampleCountPerChannel = ResolveSamplesPerChannel(block, channelCount);
         var sampleIntervalSeconds = ResolveSampleIntervalSeconds(sourceState.Descriptor);
@@ -337,7 +350,7 @@ public sealed class TdmsWriter : IContainerWriter
         }
 
         var channelHandle = IntPtr.Zero;
-        var channelName = $"CH{channelNo:D2}";
+        var channelName = BuildChannelName(sourceState.SourceId, channelNo);
         var channelDescription = SanitizeAscii($"{sourceState.SourceDisplayName} 通道 {channelNo}");
         ThrowIfError(
             TdmsNative.DDC_AddChannel(
@@ -412,6 +425,20 @@ public sealed class TdmsWriter : IContainerWriter
         }
 
         return 1d / sampleRate;
+    }
+
+    private static string BuildGroupName(int sourceId)
+    {
+        return sourceId >= 0
+            ? $"AI{sourceId:D2}"
+            : $"Source_{sourceId:D4}";
+    }
+
+    private static string BuildChannelName(int sourceId, int channelNo)
+    {
+        return sourceId >= 0
+            ? $"AI{sourceId}-{channelNo:D2}"
+            : $"CH{channelNo:D2}";
     }
 
     private static string ResolveUnitString(SampleType sampleType)
@@ -504,6 +531,247 @@ public sealed class TdmsWriter : IContainerWriter
         }
     }
 
+    private bool TryAppendAggregateBlockSamples(DataBlock block)
+    {
+        var aggregateLayout = ResolveAggregateLayout(block);
+        if (aggregateLayout is null)
+        {
+            return false;
+        }
+
+        var payload = block.Payload.Span;
+        var totalChannelCount = aggregateLayout.TotalChannelCount;
+        var sampleCountPerChannel = ResolveSamplesPerChannel(block, totalChannelCount);
+
+        switch (block.Header.SampleType)
+        {
+            case SampleType.Int16:
+                AppendAggregateInt16Channels(payload, aggregateLayout, sampleCountPerChannel);
+                return true;
+            case SampleType.Int32:
+                AppendAggregateInt32Channels(payload, aggregateLayout, sampleCountPerChannel);
+                return true;
+            case SampleType.Float32:
+                AppendAggregateFloatChannels(payload, aggregateLayout, sampleCountPerChannel);
+                return true;
+            case SampleType.Float64:
+                AppendAggregateDoubleChannels(payload, aggregateLayout, sampleCountPerChannel);
+                return true;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(block.Header.SampleType), block.Header.SampleType, "不支持的样本类型。");
+        }
+    }
+
+    private AggregateLayout? ResolveAggregateLayout(DataBlock block)
+    {
+        if (_session is null || _session.Sources.Count <= 1)
+        {
+            return null;
+        }
+
+        var orderedDescriptors = _session.Sources
+            .OrderBy(static source => source.SourceId)
+            .ToList();
+
+        var totalChannelCount = orderedDescriptors.Sum(static source => Math.Max(1, source.ChannelCount));
+        if (totalChannelCount <= 1)
+        {
+            return null;
+        }
+
+        var bytesPerSample = GetBytesPerSample(block.Header.SampleType);
+        var totalValueCount = Math.Max(1, block.PayloadLength / bytesPerSample);
+        if (totalValueCount % totalChannelCount != 0)
+        {
+            return null;
+        }
+
+        var primaryDescriptorChannelCount = _sourceDescriptors.TryGetValue(block.Header.SourceId, out var descriptor)
+            ? Math.Max(1, descriptor.ChannelCount)
+            : Math.Max(1, block.Header.ChannelCount);
+
+        if (totalChannelCount <= primaryDescriptorChannelCount)
+        {
+            return null;
+        }
+
+        var items = orderedDescriptors
+            .Select(source => new AggregateSourceItem(GetOrCreateSourceState(source.SourceId), Math.Max(1, source.ChannelCount)))
+            .ToList();
+
+        return new AggregateLayout(items, totalChannelCount);
+    }
+
+    private void AppendAggregateInt16Channels(
+        ReadOnlySpan<byte> payload,
+        AggregateLayout layout,
+        int sampleCountPerChannel)
+    {
+        var totalValueCount = payload.Length / sizeof(short);
+        var channelOffset = 0;
+
+        foreach (var item in layout.Items)
+        {
+            var sampleIntervalSeconds = ResolveSampleIntervalSeconds(item.SourceState.Descriptor);
+            for (var localChannelIndex = 0; localChannelIndex < item.ChannelCount; localChannelIndex++)
+            {
+                var values = new short[sampleCountPerChannel];
+                var globalChannelIndex = channelOffset + localChannelIndex;
+                for (var sampleIndex = 0; sampleIndex < sampleCountPerChannel; sampleIndex++)
+                {
+                    var rawIndex = sampleIndex * layout.TotalChannelCount + globalChannelIndex;
+                    if (rawIndex >= totalValueCount)
+                    {
+                        break;
+                    }
+
+                    var offset = rawIndex * sizeof(short);
+                    values[sampleIndex] = BinaryPrimitives.ReadInt16LittleEndian(payload.Slice(offset, sizeof(short)));
+                }
+
+                var channelState = GetOrCreateChannelState(item.SourceState, localChannelIndex + 1, SampleType.Int16, sampleIntervalSeconds);
+                ThrowIfError(
+                    TdmsNative.DDC_AppendDataValuesInt16(channelState.ChannelHandle, values, (uint)values.Length),
+                    "DDC_AppendDataValuesInt16");
+            }
+
+            channelOffset += item.ChannelCount;
+        }
+    }
+
+    private void AppendAggregateInt32Channels(
+        ReadOnlySpan<byte> payload,
+        AggregateLayout layout,
+        int sampleCountPerChannel)
+    {
+        var totalValueCount = payload.Length / sizeof(int);
+        var channelOffset = 0;
+
+        foreach (var item in layout.Items)
+        {
+            var sampleIntervalSeconds = ResolveSampleIntervalSeconds(item.SourceState.Descriptor);
+            for (var localChannelIndex = 0; localChannelIndex < item.ChannelCount; localChannelIndex++)
+            {
+                var values = new int[sampleCountPerChannel];
+                var globalChannelIndex = channelOffset + localChannelIndex;
+                for (var sampleIndex = 0; sampleIndex < sampleCountPerChannel; sampleIndex++)
+                {
+                    var rawIndex = sampleIndex * layout.TotalChannelCount + globalChannelIndex;
+                    if (rawIndex >= totalValueCount)
+                    {
+                        break;
+                    }
+
+                    var offset = rawIndex * sizeof(int);
+                    values[sampleIndex] = BinaryPrimitives.ReadInt32LittleEndian(payload.Slice(offset, sizeof(int)));
+                }
+
+                var channelState = GetOrCreateChannelState(item.SourceState, localChannelIndex + 1, SampleType.Int32, sampleIntervalSeconds);
+                ThrowIfError(
+                    TdmsNative.DDC_AppendDataValuesInt32(channelState.ChannelHandle, values, (uint)values.Length),
+                    "DDC_AppendDataValuesInt32");
+            }
+
+            channelOffset += item.ChannelCount;
+        }
+    }
+
+    private void AppendAggregateFloatChannels(
+        ReadOnlySpan<byte> payload,
+        AggregateLayout layout,
+        int sampleCountPerChannel)
+    {
+        var totalValueCount = payload.Length / sizeof(float);
+        var channelOffset = 0;
+
+        foreach (var item in layout.Items)
+        {
+            var sampleIntervalSeconds = ResolveSampleIntervalSeconds(item.SourceState.Descriptor);
+            for (var localChannelIndex = 0; localChannelIndex < item.ChannelCount; localChannelIndex++)
+            {
+                var values = new float[sampleCountPerChannel];
+                var globalChannelIndex = channelOffset + localChannelIndex;
+                for (var sampleIndex = 0; sampleIndex < sampleCountPerChannel; sampleIndex++)
+                {
+                    var rawIndex = sampleIndex * layout.TotalChannelCount + globalChannelIndex;
+                    if (rawIndex >= totalValueCount)
+                    {
+                        break;
+                    }
+
+                    var offset = rawIndex * sizeof(float);
+                    values[sampleIndex] = BitConverter.ToSingle(payload.Slice(offset, sizeof(float)));
+                }
+
+                var channelState = GetOrCreateChannelState(item.SourceState, localChannelIndex + 1, SampleType.Float32, sampleIntervalSeconds);
+                ThrowIfError(
+                    TdmsNative.DDC_AppendDataValuesFloat(channelState.ChannelHandle, values, (uint)values.Length),
+                    "DDC_AppendDataValuesFloat");
+            }
+
+            channelOffset += item.ChannelCount;
+        }
+    }
+
+    private void AppendAggregateDoubleChannels(
+        ReadOnlySpan<byte> payload,
+        AggregateLayout layout,
+        int sampleCountPerChannel)
+    {
+        var totalValueCount = payload.Length / sizeof(double);
+        var channelOffset = 0;
+
+        foreach (var item in layout.Items)
+        {
+            var sampleIntervalSeconds = ResolveSampleIntervalSeconds(item.SourceState.Descriptor);
+            for (var localChannelIndex = 0; localChannelIndex < item.ChannelCount; localChannelIndex++)
+            {
+                var values = new double[sampleCountPerChannel];
+                var globalChannelIndex = channelOffset + localChannelIndex;
+                for (var sampleIndex = 0; sampleIndex < sampleCountPerChannel; sampleIndex++)
+                {
+                    var rawIndex = sampleIndex * layout.TotalChannelCount + globalChannelIndex;
+                    if (rawIndex >= totalValueCount)
+                    {
+                        break;
+                    }
+
+                    var offset = rawIndex * sizeof(double);
+                    values[sampleIndex] = BitConverter.ToDouble(payload.Slice(offset, sizeof(double)));
+                }
+
+                var channelState = GetOrCreateChannelState(item.SourceState, localChannelIndex + 1, SampleType.Float64, sampleIntervalSeconds);
+                ThrowIfError(
+                    TdmsNative.DDC_AppendDataValuesDouble(channelState.ChannelHandle, values, (uint)values.Length),
+                    "DDC_AppendDataValuesDouble");
+            }
+
+            channelOffset += item.ChannelCount;
+        }
+    }
+
+    private static void TryCreateGroupProperty(IntPtr groupHandle, string propertyName, string value)
+    {
+        try
+        {
+            TdmsNative.DDC_CreateChannelGroupPropertyString(groupHandle, SanitizeAscii(propertyName), SanitizeAscii(value));
+        }
+        catch
+        {
+        }
+    }
+
+    private static void TryCreateGroupProperty(IntPtr groupHandle, string propertyName, double value)
+    {
+        try
+        {
+            TdmsNative.DDC_CreateChannelGroupPropertyDouble(groupHandle, SanitizeAscii(propertyName), value);
+        }
+        catch
+        {
+        }
+    }
+
     private static void ThrowIfError(int result, string operation)
     {
         if (result == 0)
@@ -531,6 +799,21 @@ public sealed class TdmsWriter : IContainerWriter
 
         var result = builder.ToString().Trim();
         return string.IsNullOrWhiteSpace(result) ? "session" : result;
+    }
+
+    private static string SanitizeAsciiFileName(string fileName)
+    {
+        if (string.IsNullOrWhiteSpace(fileName))
+        {
+            return "session";
+        }
+
+        var extension = Path.GetExtension(fileName);
+        var baseName = Path.GetFileNameWithoutExtension(fileName);
+        var sanitizedBaseName = SanitizeAscii(baseName);
+        return string.IsNullOrWhiteSpace(extension)
+            ? sanitizedBaseName
+            : sanitizedBaseName + extension;
     }
 
     private static string ResolveUniqueFilePath(string directory, string fileName)
@@ -584,4 +867,8 @@ public sealed class TdmsWriter : IContainerWriter
 
         public SampleType SampleType { get; }
     }
+
+    private sealed record AggregateSourceItem(TdmsSourceState SourceState, int ChannelCount);
+
+    private sealed record AggregateLayout(IReadOnlyList<AggregateSourceItem> Items, int TotalChannelCount);
 }
