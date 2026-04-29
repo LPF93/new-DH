@@ -494,6 +494,66 @@
         "runtime": {
           "lib/net6.0/Tmds.DBus.Protocol.dll": {}
         }
+      },
+      "AcqEngine.Core/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v8.0",
+        "compile": {
+          "bin/placeholder/AcqEngine.Core.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/AcqEngine.Core.dll": {}
+        }
+      },
+      "AcqEngine.DeviceSdk/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v8.0",
+        "dependencies": {
+          "AcqEngine.Core": "1.0.0"
+        },
+        "compile": {
+          "bin/placeholder/AcqEngine.DeviceSdk.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/AcqEngine.DeviceSdk.dll": {}
+        }
+      },
+      "AcqEngine.Storage.Abstractions/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v8.0",
+        "dependencies": {
+          "AcqEngine.Core": "1.0.0"
+        },
+        "compile": {
+          "bin/placeholder/AcqEngine.Storage.Abstractions.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/AcqEngine.Storage.Abstractions.dll": {}
+        }
+      },
+      "AcqEngine.Storage.Tdms/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v8.0",
+        "dependencies": {
+          "AcqEngine.Core": "1.0.0",
+          "AcqEngine.Storage.Abstractions": "1.0.0"
+        },
+        "compile": {
+          "bin/placeholder/AcqEngine.Storage.Tdms.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/AcqEngine.Storage.Tdms.dll": {}
+        }
+      },
+      "AcqShell.Contracts/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v8.0",
+        "compile": {
+          "bin/placeholder/AcqShell.Contracts.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/AcqShell.Contracts.dll": {}
+        }
       }
     }
   },
@@ -1285,34 +1345,59 @@
         "tmds.dbus.protocol.0.16.0.nupkg.sha512",
         "tmds.dbus.protocol.nuspec"
       ]
+    },
+    "AcqEngine.Core/1.0.0": {
+      "type": "project",
+      "path": "../AcqEngine.Core/AcqEngine.Core.csproj",
+      "msbuildProject": "../AcqEngine.Core/AcqEngine.Core.csproj"
+    },
+    "AcqEngine.DeviceSdk/1.0.0": {
+      "type": "project",
+      "path": "../AcqEngine.DeviceSdk/AcqEngine.DeviceSdk.csproj",
+      "msbuildProject": "../AcqEngine.DeviceSdk/AcqEngine.DeviceSdk.csproj"
+    },
+    "AcqEngine.Storage.Abstractions/1.0.0": {
+      "type": "project",
+      "path": "../AcqEngine.Storage.Abstractions/AcqEngine.Storage.Abstractions.csproj",
+      "msbuildProject": "../AcqEngine.Storage.Abstractions/AcqEngine.Storage.Abstractions.csproj"
+    },
+    "AcqEngine.Storage.Tdms/1.0.0": {
+      "type": "project",
+      "path": "../AcqEngine.Storage.Tdms/AcqEngine.Storage.Tdms.csproj",
+      "msbuildProject": "../AcqEngine.Storage.Tdms/AcqEngine.Storage.Tdms.csproj"
+    },
+    "AcqShell.Contracts/1.0.0": {
+      "type": "project",
+      "path": "../AcqShell.Contracts/AcqShell.Contracts.csproj",
+      "msbuildProject": "../AcqShell.Contracts/AcqShell.Contracts.csproj"
     }
   },
   "projectFileDependencyGroups": {
     "net8.0": [
+      "AcqEngine.Core >= 1.0.0",
+      "AcqEngine.DeviceSdk >= 1.0.0",
+      "AcqEngine.Storage.Abstractions >= 1.0.0",
+      "AcqEngine.Storage.Tdms >= 1.0.0",
+      "AcqShell.Contracts >= 1.0.0",
       "Avalonia >= 11.1.4",
       "Avalonia.Desktop >= 11.1.4",
       "Avalonia.Themes.Fluent >= 11.1.4"
     ]
   },
   "packageFolders": {
-    "C:\\Users\\27249\\.nuget\\packages\\": {},
-    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
+    "C:\\Users\\26453\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\GIT-PROJECT\\new-DH\\src\\AcqShell.UI\\AcqShell.UI.csproj",
+      "projectUniqueName": "C:\\GIt\\new-DH\\src\\AcqShell.UI\\AcqShell.UI.csproj",
       "projectName": "AcqShell.UI",
-      "projectPath": "D:\\GIT-PROJECT\\new-DH\\src\\AcqShell.UI\\AcqShell.UI.csproj",
-      "packagesPath": "C:\\Users\\27249\\.nuget\\packages\\",
-      "outputPath": "D:\\GIT-PROJECT\\new-DH\\src\\AcqShell.UI\\buildobj\\",
+      "projectPath": "C:\\GIt\\new-DH\\src\\AcqShell.UI\\AcqShell.UI.csproj",
+      "packagesPath": "C:\\Users\\26453\\.nuget\\packages\\",
+      "outputPath": "C:\\GIt\\new-DH\\src\\AcqShell.UI\\buildobj\\",
       "projectStyle": "PackageReference",
-      "fallbackFolders": [
-        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
-      ],
       "configFilePaths": [
-        "C:\\Users\\27249\\AppData\\Roaming\\NuGet\\NuGet.Config",
-        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+        "C:\\Users\\26453\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
@@ -1325,7 +1410,23 @@
       "frameworks": {
         "net8.0": {
           "targetAlias": "net8.0",
-          "projectReferences": {}
+          "projectReferences": {
+            "C:\\GIt\\new-DH\\src\\AcqEngine.Core\\AcqEngine.Core.csproj": {
+              "projectPath": "C:\\GIt\\new-DH\\src\\AcqEngine.Core\\AcqEngine.Core.csproj"
+            },
+            "C:\\GIt\\new-DH\\src\\AcqEngine.DeviceSdk\\AcqEngine.DeviceSdk.csproj": {
+              "projectPath": "C:\\GIt\\new-DH\\src\\AcqEngine.DeviceSdk\\AcqEngine.DeviceSdk.csproj"
+            },
+            "C:\\GIt\\new-DH\\src\\AcqEngine.Storage.Abstractions\\AcqEngine.Storage.Abstractions.csproj": {
+              "projectPath": "C:\\GIt\\new-DH\\src\\AcqEngine.Storage.Abstractions\\AcqEngine.Storage.Abstractions.csproj"
+            },
+            "C:\\GIt\\new-DH\\src\\AcqEngine.Storage.Tdms\\AcqEngine.Storage.Tdms.csproj": {
+              "projectPath": "C:\\GIt\\new-DH\\src\\AcqEngine.Storage.Tdms\\AcqEngine.Storage.Tdms.csproj"
+            },
+            "C:\\GIt\\new-DH\\src\\AcqShell.Contracts\\AcqShell.Contracts.csproj": {
+              "projectPath": "C:\\GIt\\new-DH\\src\\AcqShell.Contracts\\AcqShell.Contracts.csproj"
+            }
+          }
         }
       },
       "warningProperties": {
@@ -1373,7 +1474,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.304/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.310/PortableRuntimeIdentifierGraph.json"
       }
     }
   }

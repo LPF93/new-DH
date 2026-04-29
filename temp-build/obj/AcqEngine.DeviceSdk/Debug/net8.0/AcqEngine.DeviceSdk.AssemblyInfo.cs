@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("AcqEngine.DeviceSdk")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+76d2ed600a1696a41b39fa3ce38f821d1a545dbf")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+cdd4160e6f0fab543a1e8b1679d06f9a88d8cb87")]
 [assembly: System.Reflection.AssemblyProductAttribute("AcqEngine.DeviceSdk")]
 [assembly: System.Reflection.AssemblyTitleAttribute("AcqEngine.DeviceSdk")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -48,6 +48,7 @@ public partial class MainWindow : Window
     private long _storageEnqueuedBlocks;
     private long _storageEnqueuedBytes;
     private long _storageEnqueueFailures;
+    private long _lastStorageBackpressureLogUnixMs;
     private int _nextResultViewNumber = 1;
 
     public MainWindow()
@@ -401,6 +402,7 @@ public partial class MainWindow : Window
         Interlocked.Exchange(ref _storageEnqueuedBlocks, 0);
         Interlocked.Exchange(ref _storageEnqueuedBytes, 0);
         Interlocked.Exchange(ref _storageEnqueueFailures, 0);
+        Interlocked.Exchange(ref _lastStorageBackpressureLogUnixMs, 0);
 
         StorageStatusText.Text = $"正在存储到 {storageDirectory}";
         UpdateStorageSummary();
@@ -810,6 +812,7 @@ public partial class MainWindow : Window
                 else
                 {
                     Interlocked.Increment(ref _storageEnqueueFailures);
+                    LogStorageBackpressureIfNeeded();
                 }
             }
 
@@ -916,6 +919,24 @@ public partial class MainWindow : Window
 
         AppendLog(
             $"采样回调块：source={block.Header.SourceId}，channels={block.Header.ChannelCount}，samples/ch={block.Header.SampleCountPerChannel}，bytes={block.PayloadLength}。");
+    }
+
+    private void LogStorageBackpressureIfNeeded()
+    {
+        var nowMs = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+        var previousMs = Interlocked.Read(ref _lastStorageBackpressureLogUnixMs);
+        if (nowMs - previousMs < 2000)
+        {
+            return;
+        }
+
+        if (Interlocked.CompareExchange(ref _lastStorageBackpressureLogUnixMs, nowMs, previousMs) != previousMs)
+        {
+            return;
+        }
+
+        var pendingBlocks = _storageOrchestrator?.RawPendingBlocks ?? 0;
+        AppendLog($"TDMS 写入队列已满，本次采样块未能入队。当前待写块：{pendingBlocks:N0}。");
     }
 
     private static List<ChannelWaveChunk> ParseWaveChunks(DataBlock block, int? expectedChannelCount)

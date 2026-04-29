@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <UseBinaryProjectReferences Condition="'$(UseBinaryProjectReferences)' == ''">true</UseBinaryProjectReferences>
+    <UseBinaryProjectReferences Condition="'$(UseBinaryProjectReferences)' == ''">false</UseBinaryProjectReferences>
   </PropertyGroup>
 
   <ItemGroup Condition="'$(UseBinaryProjectReferences)' != 'true'">

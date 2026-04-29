@@ -1,3 +1,4 @@
+using System.Buffers;
 using System.Buffers.Binary;
 using System.Globalization;
 using System.Text;
@@ -282,23 +283,31 @@ public sealed class TdmsWriter : IContainerWriter
         var totalValueCount = payload.Length / sizeof(float);
         for (var channelIndex = 0; channelIndex < channelCount; channelIndex++)
         {
-            var values = new float[sampleCountPerChannel];
-            for (var sampleIndex = 0; sampleIndex < sampleCountPerChannel; sampleIndex++)
+            var values = ArrayPool<float>.Shared.Rent(sampleCountPerChannel);
+            try
             {
-                var rawIndex = sampleIndex * channelCount + channelIndex;
-                if (rawIndex >= totalValueCount)
+                for (var sampleIndex = 0; sampleIndex < sampleCountPerChannel; sampleIndex++)
                 {
-                    break;
+                    var rawIndex = sampleIndex * channelCount + channelIndex;
+                    if (rawIndex >= totalValueCount)
+                    {
+                        Array.Clear(values, sampleIndex, sampleCountPerChannel - sampleIndex);
+                        break;
+                    }
+
+                    var offset = rawIndex * sizeof(float);
+                    values[sampleIndex] = BitConverter.ToSingle(payload.Slice(offset, sizeof(float)));
                 }
 
-                var offset = rawIndex * sizeof(float);
-                values[sampleIndex] = BitConverter.ToSingle(payload.Slice(offset, sizeof(float)));
+                var channelState = GetOrCreateChannelState(sourceState, channelIndex + 1, SampleType.Float32, sampleIntervalSeconds);
+                ThrowIfError(
+                    TdmsNative.DDC_AppendDataValuesFloat(channelState.ChannelHandle, values, (uint)sampleCountPerChannel),
+                    "DDC_AppendDataValuesFloat");
             }
-
-            var channelState = GetOrCreateChannelState(sourceState, channelIndex + 1, SampleType.Float32, sampleIntervalSeconds);
-            ThrowIfError(
-                TdmsNative.DDC_AppendDataValuesFloat(channelState.ChannelHandle, values, (uint)values.Length),
-                "DDC_AppendDataValuesFloat");
+            finally
+            {
+                ArrayPool<float>.Shared.Return(values);
+            }
         }
     }
 
@@ -689,24 +698,32 @@ public sealed class TdmsWriter : IContainerWriter
             var sampleIntervalSeconds = ResolveSampleIntervalSeconds(item.SourceState.Descriptor);
             for (var localChannelIndex = 0; localChannelIndex < item.ChannelCount; localChannelIndex++)
             {
-                var values = new float[sampleCountPerChannel];
-                var globalChannelIndex = channelOffset + localChannelIndex;
-                for (var sampleIndex = 0; sampleIndex < sampleCountPerChannel; sampleIndex++)
+                var values = ArrayPool<float>.Shared.Rent(sampleCountPerChannel);
+                try
                 {
-                    var rawIndex = sampleIndex * layout.TotalChannelCount + globalChannelIndex;
-                    if (rawIndex >= totalValueCount)
+                    var globalChannelIndex = channelOffset + localChannelIndex;
+                    for (var sampleIndex = 0; sampleIndex < sampleCountPerChannel; sampleIndex++)
                     {
-                        break;
+                        var rawIndex = sampleIndex * layout.TotalChannelCount + globalChannelIndex;
+                        if (rawIndex >= totalValueCount)
+                        {
+                            Array.Clear(values, sampleIndex, sampleCountPerChannel - sampleIndex);
+                            break;
+                        }
+
+                        var offset = rawIndex * sizeof(float);
+                        values[sampleIndex] = BitConverter.ToSingle(payload.Slice(offset, sizeof(float)));
                     }
 
-                    var offset = rawIndex * sizeof(float);
-                    values[sampleIndex] = BitConverter.ToSingle(payload.Slice(offset, sizeof(float)));
+                    var channelState = GetOrCreateChannelState(item.SourceState, localChannelIndex + 1, SampleType.Float32, sampleIntervalSeconds);
+                    ThrowIfError(
+                        TdmsNative.DDC_AppendDataValuesFloat(channelState.ChannelHandle, values, (uint)sampleCountPerChannel),
+                        "DDC_AppendDataValuesFloat");
                 }
-
-                var channelState = GetOrCreateChannelState(item.SourceState, localChannelIndex + 1, SampleType.Float32, sampleIntervalSeconds);
-                ThrowIfError(
-                    TdmsNative.DDC_AppendDataValuesFloat(channelState.ChannelHandle, values, (uint)values.Length),
-                    "DDC_AppendDataValuesFloat");
+                finally
+                {
+                    ArrayPool<float>.Shared.Return(values);
+                }
             }
 
             channelOffset += item.ChannelCount;

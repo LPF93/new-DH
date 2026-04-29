@@ -1,6 +1,7 @@
 ﻿using System.Buffers;
 using System.Buffers.Binary;
 using System.Collections.Concurrent;
+using System.Runtime.InteropServices;
 using System.Threading.Channels;
 
 namespace AcqEngine.Core;
@@ -151,6 +152,23 @@ public sealed class DataBlock : IDisposable
 	public void CopyFrom(ReadOnlySpan<byte> source)
 	{
 		source.CopyTo(GetWritableSpan(source.Length));
+	}
+
+	public void CopyFrom(IntPtr source, int bytes)
+	{
+		if (source == IntPtr.Zero)
+		{
+			throw new ArgumentNullException(nameof(source));
+		}
+
+		var buffer = _buffer ?? throw new ObjectDisposedException(nameof(DataBlock));
+		if (bytes > buffer.Length)
+		{
+			throw new ArgumentOutOfRangeException(nameof(bytes), "Requested payload size exceeds block capacity.");
+		}
+
+		Marshal.Copy(source, buffer, 0, bytes);
+		PayloadLength = bytes;
 	}
 
 	public void AddRef()

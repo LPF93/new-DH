@@ -152,17 +152,7 @@ public sealed class DhSdkAcquisitionSource : IDescriptorAcquisitionSource
 
         LogCallbackMessageType(messageType, sampleTime, groupId, machineId, dataCountPerChannel, bufferCount, accepted: true);
 
-        var rawBytes = new byte[bufferCount];
-        try
-        {
-            Marshal.Copy((IntPtr)sampleData, rawBytes, 0, rawBytes.Length);
-        }
-        finally
-        {
-            ReleaseBufferSafe(sampleData);
-        }
-
-        var channelCount = ResolveChannelCount(rawBytes.Length, dataCountPerChannel, _descriptor.ChannelCount);
+        var channelCount = ResolveChannelCount(bufferCount, dataCountPerChannel, _descriptor.ChannelCount);
         var mappedSourceId = ResolveSourceId(machineId, groupId, _descriptor.SourceId);
         LogMappedBlock(machineId, groupId, mappedSourceId, channelCount, dataCountPerChannel, bufferCount, blockIndex, totalDataCount);
 
@@ -171,8 +161,22 @@ public sealed class DhSdkAcquisitionSource : IDescriptorAcquisitionSource
             _callbackPos = totalDataCount + dataCountPerChannel;
         }
 
-        var block = _blockPool.Rent(rawBytes.Length);
-        block.CopyFrom(rawBytes);
+        DataBlock? block = null;
+        try
+        {
+            block = _blockPool.Rent(bufferCount);
+            block.CopyFrom((IntPtr)sampleData, bufferCount);
+        }
+        catch
+        {
+            block?.Release();
+            return;
+        }
+        finally
+        {
+            ReleaseBufferSafe(sampleData);
+        }
+
         block.Header = new DataBlockHeader(
             Guid.Empty,
             mappedSourceId,

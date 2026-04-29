@@ -26,11 +26,14 @@ public sealed record SegmentPolicy(int SegmentSeconds = 1, long SegmentMaxBytes 
 	public TimeSpan SegmentDuration => TimeSpan.FromSeconds(Math.Max(1, SegmentSeconds));
 }
 
+public sealed record StorageQueueOptions(int Capacity = 512);
+
 public sealed class StorageOrchestrator : IAsyncDisposable
 {
 	private readonly IContainerWriter _rawWriter;
 	private readonly IContainerWriter? _processedWriter;
 	private readonly SegmentPolicy _segmentPolicy;
+	private readonly StorageQueueOptions _queueOptions;
 
 	private StreamWorker? _rawWorker;
 	private StreamWorker? _processedWorker;
@@ -39,11 +42,13 @@ public sealed class StorageOrchestrator : IAsyncDisposable
 	public StorageOrchestrator(
 		IContainerWriter rawWriter,
 		IContainerWriter? processedWriter,
-		SegmentPolicy segmentPolicy)
+		SegmentPolicy segmentPolicy,
+		StorageQueueOptions? queueOptions = null)
 	{
 		_rawWriter = rawWriter;
 		_processedWriter = processedWriter;
 		_segmentPolicy = segmentPolicy;
+		_queueOptions = queueOptions ?? new StorageQueueOptions();
 	}
 
 	public async Task StartAsync(SessionContext session, CancellationToken ct)
@@ -53,22 +58,26 @@ public sealed class StorageOrchestrator : IAsyncDisposable
 			throw new InvalidOperationException("存储编排器已经启动，不能重复启动。");
 		}
 
-		_rawWorker = await StreamWorker.StartAsync(_rawWriter, session, StreamKind.Raw, _segmentPolicy, ct);
+		_rawWorker = await StreamWorker.StartAsync(_rawWriter, session, StreamKind.Raw, _segmentPolicy, _queueOptions, ct);
 		if (_processedWriter is not null && session.WriteProcessed)
 		{
-			_processedWorker = await StreamWorker.StartAsync(_processedWriter, session, StreamKind.Processed, _segmentPolicy, ct);
+			_processedWorker = await StreamWorker.StartAsync(_processedWriter, session, StreamKind.Processed, _segmentPolicy, _queueOptions, ct);
 		}
 	}
 
 	public bool TryEnqueueRaw(DataBlock block)
 	{
-		return TryEnqueue(_rawWorker, block);
+		return _rawWorker?.TryEnqueue(block) == true;
 	}
 
 	public bool TryEnqueueProcessed(DataBlock block)
 	{
-		return TryEnqueue(_processedWorker, block);
+		return _processedWorker?.TryEnqueue(block) == true;
 	}
+
+	public int RawPendingBlocks => _rawWorker?.PendingBlocks ?? 0;
+
+	public int ProcessedPendingBlocks => _processedWorker?.PendingBlocks ?? 0;
 
 	public async Task StopAsync(CancellationToken ct)
 	{
@@ -126,38 +135,24 @@ public sealed class StorageOrchestrator : IAsyncDisposable
 			.ToArray();
 	}
 
-	private static bool TryEnqueue(StreamWorker? worker, DataBlock block)
-	{
-		if (worker is null)
-		{
-			return false;
-		}
-
-		block.AddRef();
-		if (!worker.Queue.Writer.TryWrite(block))
-		{
-			block.Release();
-			return false;
-		}
-
-		return true;
-	}
-
 	private sealed class StreamWorker
 	{
 		private readonly IContainerWriter _writer;
 		private readonly StreamKind _streamKind;
+		private int _pendingBlocks;
 		private int _segmentNo = 1;
 
-		private StreamWorker(IContainerWriter writer, StreamKind streamKind, SegmentPolicy policy)
+		private StreamWorker(IContainerWriter writer, StreamKind streamKind, SegmentPolicy policy, StorageQueueOptions queueOptions)
 		{
 			_writer = writer;
 			_streamKind = streamKind;
 			_ = policy;
-			Queue = Channel.CreateUnbounded<DataBlock>(new UnboundedChannelOptions
+			Queue = Channel.CreateBounded<DataBlock>(new BoundedChannelOptions(Math.Max(1, queueOptions.Capacity))
 			{
 				SingleReader = true,
-				SingleWriter = false
+				SingleWriter = false,
+				FullMode = BoundedChannelFullMode.Wait,
+				AllowSynchronousContinuations = false
 			});
 		}
 
@@ -165,14 +160,31 @@ public sealed class StorageOrchestrator : IAsyncDisposable
 
 		public Task LoopTask { get; private set; } = Task.CompletedTask;
 
+		public int PendingBlocks => Volatile.Read(ref _pendingBlocks);
+
+		public bool TryEnqueue(DataBlock block)
+		{
+			block.AddRef();
+			Interlocked.Increment(ref _pendingBlocks);
+			if (!Queue.Writer.TryWrite(block))
+			{
+				Interlocked.Decrement(ref _pendingBlocks);
+				block.Release();
+				return false;
+			}
+
+			return true;
+		}
+
 		public static async Task<StreamWorker> StartAsync(
 			IContainerWriter writer,
 			SessionContext session,
 			StreamKind streamKind,
 			SegmentPolicy policy,
+			StorageQueueOptions queueOptions,
 			CancellationToken ct)
 		{
-			var worker = new StreamWorker(writer, streamKind, policy);
+			var worker = new StreamWorker(writer, streamKind, policy, queueOptions);
 			await writer.OpenSessionAsync(session, ct);
 			await writer.OpenSegmentAsync(streamKind, worker._segmentNo, ct);
 			worker.LoopTask = worker.RunLoopAsync();
@@ -200,6 +212,7 @@ public sealed class StorageOrchestrator : IAsyncDisposable
 				finally
 				{
 					block.Release();
+					Interlocked.Decrement(ref _pendingBlocks);
 				}
 			}
 
